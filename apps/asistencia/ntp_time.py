@@ -12,7 +12,6 @@ def obtener_hora_oficial_chile():
     
     try:
         respuesta = cliente.request(servidor_ntp, version=3, timeout=2)
-        # Convertimos el tiempo NTP a objeto datetime consciente de zona horaria
         hora_exacta = datetime.fromtimestamp(respuesta.tx_time, timezone.utc)
         return {
             'hora': hora_exacta,
@@ -20,7 +19,6 @@ def obtener_hora_oficial_chile():
             'sincronizado': True
         }
     except Exception as e:
-        # Fallback: Usar hora del servidor si el SHOA no responde (falla de red)
         return {
             'hora': datetime.now(timezone.utc),
             'origen': 'Servidor Local (Fallback)',

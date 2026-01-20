@@ -45,32 +45,22 @@ class Marcacion(models.Model):
     ]
     animo = models.CharField(max_length=10, choices=ANIMO_CHOICES, null=True, blank=True)
     comentario_animo = models.TextField(null=True, blank=True, verbose_name="¿Por qué te sientes así?")
-
-    # Para saber si esta marca corrige a otra anterior (ID 2 referencia a ID 1)
     marca_reemplazada = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='reemplazo')
-
-    # Para saber si fue creada por sistema o manualmente por admin
     es_manual = models.BooleanField(default=False)
     observacion = models.TextField(blank=True, null=True)
-
-    # Datos de Geolocalización y Red
     latitud = models.DecimalField(max_digits=10, decimal_places=7, null=True)
     longitud = models.DecimalField(max_digits=10, decimal_places=7, null=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     direccion = models.CharField(max_length=255, blank=True, null=True, help_text="Dirección obtenida vía GPS")
-
-    # Seguridad (Cadena de Bloques / Inviolabilidad)
     hash_previo = models.CharField(max_length=64, blank=True)
     hash_actual = models.CharField(max_length=64, blank=True, editable=False)
 
     def calcular_hash(self):
         """Genera firma SHA-256 única encadenada al registro anterior"""
-        # Buscamos la última marca de ESTE trabajador
         ultima = Marcacion.objects.filter(trabajador=self.trabajador).order_by('-timestamp').first()
         prev = ultima.hash_actual if ultima else "GENESIS_BLOCK"
 
         self.hash_previo = prev
-        # String único: ID_Usuario + Fecha + Tipo + HashAnterior
         raw_data = f"{self.trabajador.id}{self.timestamp}{self.tipo}{prev}"
         return hashlib.sha256(raw_data.encode('utf-8')).hexdigest()
 
@@ -78,29 +68,22 @@ class Marcacion(models.Model):
         """Validador lógico para impedir inconsistencias"""
         super().clean()
 
-        # Validación: La Salida no puede ser anterior a la última Entrada
         if self.tipo == 'SALIDA':
-            # Buscamos la última entrada de este trabajador
             ultima_entrada = Marcacion.objects.filter(
                 trabajador=self.trabajador,
                 tipo='ENTRADA'
             ).exclude(pk=self.pk).order_by('-timestamp').first()
 
             if ultima_entrada:
-                # Si la marca que intentamos guardar es ANTERIOR a la entrada...
                 if self.timestamp < ultima_entrada.timestamp:
                     raise ValidationError(f"Error Cronológico: No puedes marcar SALIDA ({self.timestamp.strftime('%H:%M')}) antes de la ENTRADA ({ultima_entrada.timestamp.strftime('%H:%M')}).")
 
     def save(self, *args, **kwargs):
-        # 1. ESTA ES LA LÍNEA MÁGICA QUE FALTABA:
-        # Obliga a ejecutar el método clean() antes de escribir en la base de datos.
         self.full_clean()
 
-        # 2. Generación del Hash (Blockchain)
         if not self.pk:
             self.hash_actual = self.calcular_hash()
 
-        # 3. Guardado real
         super(Marcacion, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -123,12 +106,10 @@ class SolicitudMarca(models.Model):
     tipo_solicitud = models.CharField(max_length=20, choices=TIPOS_SOLICITUD)
     estado = models.CharField(max_length=20, choices=ESTADOS_SOLICITUD, default='PENDIENTE')
 
-    # Datos propuestos
     fecha_hora_propuesta = models.DateTimeField()
-    tipo_marca_propuesta = models.CharField(max_length=20) # ENTRADA, SALIDA...
+    tipo_marca_propuesta = models.CharField(max_length=20) 
     motivo = models.TextField(help_text="Motivo de la falla o error")
 
-    # Si es rectificación, apuntamos a la marca original que se quiere cambiar
     marca_original = models.ForeignKey(Marcacion, on_delete=models.SET_NULL, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -203,7 +184,6 @@ class Perfil(models.Model):
         }
         return mapa_dias.get(dia_semana, False)
 
-    # --- AGREGA ESTE CAMPO NUEVO ---
     cambiar_pass_inicial = models.BooleanField(default=True, verbose_name="Debe cambiar contraseña")
     jornada_diaria = models.IntegerField(
         default=9,
@@ -219,7 +199,6 @@ class Perfil(models.Model):
     def __str__(self):
         return f"Perfil de {self.usuario.username}"
 
-# --- AGREGA ESTO AL FINAL DEL ARCHIVO ---
 
 @receiver(post_save, sender=User)
 def crear_o_actualizar_perfil(sender, instance, created, **kwargs):
@@ -227,11 +206,8 @@ def crear_o_actualizar_perfil(sender, instance, created, **kwargs):
     Gestiona la creación del perfil de forma segura.
     """
     if created:
-        # get_or_create es la clave: Si ya existe, lo trae. Si no, lo crea.
-        # Esto evita el choque con el Admin.
         Perfil.objects.get_or_create(usuario=instance)
 
-    # Solo intentamos guardar si el perfil existe, para evitar errores raros
     if hasattr(instance, 'perfil'):
         instance.perfil.save()
 
@@ -242,7 +218,7 @@ class LogAlerta(models.Model):
     ]
     trabajador = models.ForeignKey(User, on_delete=models.CASCADE)
     tipo = models.CharField(max_length=20, choices=TIPOS)
-    fecha = models.DateField(auto_now_add=True) # Fecha de hoy
+    fecha = models.DateField(auto_now_add=True) 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -271,10 +247,8 @@ class Vacacion(models.Model):
     inicio = models.DateField(verbose_name="Fecha Inicio")
     fin = models.DateField(verbose_name="Fecha Fin")
     comentario = models.CharField(max_length=200, blank=True, null=True)
-    # --- CAMPO NUEVO QUE FALTABA ---
     estado = models.CharField(max_length=15, choices=ESTADOS, default='PENDIENTE')
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
-    # -------------------------------
 
     def __str__(self):
         return f"{self.trabajador.username} ({self.inicio} al {self.fin})"
@@ -321,7 +295,6 @@ class DiaAdministrativo(models.Model):
     estado = models.CharField(max_length=15, choices=ESTADOS, default='PENDIENTE')
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
 
-    # Respuesta de RRHH
     comentario_rrhh = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):

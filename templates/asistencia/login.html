@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* 1. FONDO ANIMADO */
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
@@ -29,11 +28,10 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* 2. TARJETA DE CRISTAL (Glassmorphism) */
         .glass-card {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); /* Safari */
+            -webkit-backdrop-filter: blur(20px); 
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 24px;
             padding: 3rem;
@@ -46,7 +44,6 @@
             overflow: hidden;
         }
 
-        /* Efecto de brillo superior */
         .glass-card::before {
             content: '';
             position: absolute;
@@ -63,7 +60,6 @@
             100% { left: 100%; }
         }
 
-        /* 3. LOGO Y TITULOS */
         .logo-container {
             width: 80px;
             height: 80px;
@@ -84,7 +80,6 @@
         h2 { font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem; }
         p.subtitle { font-size: 0.9rem; opacity: 0.8; margin-bottom: 2rem; font-weight: 300; }
 
-        /* 4. INPUTS MODERNOS */
         .input-group {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50px;
@@ -119,7 +114,6 @@
 
         .form-control::placeholder { color: rgba(255, 255, 255, 0.6); }
 
-        /* 5. BOTÓN GLOW */
         .btn-login {
             width: 100%;
             padding: 12px;
@@ -141,7 +135,6 @@
             background: #f8f9fa;
         }
 
-        /* 6. ENLACES Y ALERTAS */
         .links a {
             color: rgba(255, 255, 255, 0.8);
             font-size: 0.85rem;

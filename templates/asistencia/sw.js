@@ -1,4 +1,4 @@
-const CACHE_NAME = 'asistencia-v2'; // Cambié a v2 para forzar actualización
+const CACHE_NAME = 'asistencia-v2'; 
 const urlsToCache = [
     '/',
 ];
@@ -8,7 +8,6 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('📦 Guardando caché offline...');
-                // Usamos return cache.add('/') en vez de addAll para ser más tolerantes
                 return cache.addAll(urlsToCache);
             })
             .catch(err => console.error("❌ Falló la instalación del SW:", err))
@@ -21,7 +20,6 @@ self.addEventListener('fetch', event => {
             .catch(() => {
                 return caches.match(event.request)
                     .then(response => {
-                        // Si está en caché, lo devuelve. Si no, devuelve una página básica o nada.
                         return response || caches.match('/');
                     });
             })

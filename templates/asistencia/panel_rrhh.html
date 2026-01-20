@@ -232,22 +232,20 @@
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('graficoAnimo').getContext('2d');
 
-        // Datos que vienen de Django (views.py)
         const dataFeliz = {{ grafico_feliz|default:0 }};
         const dataNeutral = {{ grafico_neutral|default:0 }};
         const dataMolesto = {{ grafico_molesto|default:0 }};
 
-        // Configuración del Gráfico
         new Chart(ctx, {
-            type: 'doughnut', // Tipo "Dona"
+            type: 'doughnut', 
             data: {
                 labels: ['Feliz', 'Neutral', 'Molesto/Cansado'],
                 datasets: [{
                     data: [dataFeliz, dataNeutral, dataMolesto],
                     backgroundColor: [
-                        '#28a745', // Verde (Feliz)
-                        '#ffc107', // Amarillo (Neutral)
-                        '#dc3545'  // Rojo (Molesto)
+                        '#28a745', 
+                        '#ffc107', 
+                        '#dc3545'  
                     ],
                     borderWidth: 0,
                     hoverOffset: 4
@@ -258,7 +256,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false // Ocultamos leyenda por defecto para usar la nuestra personalizada abajo
+                        display: false 
                     },
                     tooltip: {
                         callbacks: {
@@ -270,7 +268,7 @@
                         }
                     }
                 },
-                cutout: '70%', // Hace la dona más fina o gruesa
+                cutout: '70%', 
             }
         });
     });

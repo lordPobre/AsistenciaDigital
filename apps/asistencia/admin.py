@@ -5,8 +5,6 @@ from .models import Marcacion, Empresa, Perfil, SolicitudMarca, Feriado, Vacacio
 
 User = get_user_model()
 
-# --- 1. CONFIGURACIÓN DE EMPRESA ---
-
 @admin.register(Perfil)
 class PerfilAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'cargo', 'trabaja_sabado')
@@ -25,34 +23,29 @@ class PerfilAdmin(admin.ModelAdmin):
 class EmpresaAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'rut', 'direccion', 'tiene_logo')
     search_fields = ('nombre', 'rut')
-    # Esto asegura que aparezca el campo para subir la imagen
     fields = ('nombre', 'rut', 'razon_social', 'direccion', 'email_rrhh', 'logo')
 
     def tiene_logo(self, obj):
         return "✅ Sí" if obj.logo else "❌ No"
     tiene_logo.short_description = "Logo Subido"
 
-# --- 2. CONFIGURACIÓN DEL PERFIL (Inline) ---
 class PerfilInline(admin.StackedInline):
     model = Perfil
     can_delete = False
     verbose_name_plural = 'Perfil del Trabajador (Empresa)'
     fk_name = 'usuario'
 
-# --- 3. EXTENSIÓN DEL ADMIN DE USUARIOS ---
 class UserAdmin(BaseUserAdmin):
     def get_inlines(self, request, obj=None):
         if not obj:
             return []
         return [PerfilInline]
-
-# --- 4. RE-REGISTRO DEL USUARIO ---
+ 
 if admin.site.is_registered(User):
     admin.site.unregister(User)
 
 admin.site.register(User, UserAdmin)
 
-# --- 5. CONFIGURACIÓN DE MARCACIÓN ---
 class MarcacionAdmin(admin.ModelAdmin):
     list_display = ('trabajador', 'get_empresa', 'tipo', 'timestamp', 'latitud', 'longitud')
     list_filter = ('tipo', 'timestamp', 'trabajador__perfil__empresa')

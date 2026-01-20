@@ -1,50 +1,45 @@
 :root {
-    /* Paleta de Colores 'Perseus Dark' */
-    --bg-body: #0f0f0f;       /* Fondo principal muy oscuro */
-    --bg-card: #1e1e1e;       /* Fondo de las tarjetas */
+    --bg-body: #0f0f0f;       
+    --bg-card: #1e1e1e;       
     --text-main: #ffffff;
     --text-muted: #a0a0a0;
-    --accent: #ff6b00;        /* Ese naranja moderno de tu foto */
-    --radius: 24px;           /* Bordes muy redondos */
+    --accent: #ff6b00;        
+    --radius: 24px;          
 }
 
 body {
     background-color: var(--bg-body);
     color: var(--text-main);
-    font-family: 'Inter', sans-serif; /* Fuente moderna recomendada */
+    font-family: 'Inter', sans-serif; 
 }
 
-/* 1. Sidebar Moderna */
 .sidebar-modern {
     width: 260px;
     height: 100vh;
-    background-color: var(--bg-body); /* Se funde con el fondo */
+    background-color: var(--bg-body); 
     position: fixed;
     padding: 2rem;
     border-right: 1px solid #333;
 }
 
-/* 2. Contenedor Principal */
 .main-content {
-    margin-left: 260px; /* Deja espacio al sidebar */
+    margin-left: 260px; 
     padding: 2rem;
 }
 
-/* 3. Tarjetas Bento (Lo más importante) */
 .bento-card {
     background-color: var(--bg-card);
     border-radius: var(--radius);
     padding: 1.5rem;
-    border: 1px solid #333; /* Borde sutil */
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5); /* Sombra suave */
+    border: 1px solid #333; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
     transition: transform 0.2s;
 }
 
 .bento-card:hover {
-    border-color: var(--accent); /* Brillo naranja al pasar mouse */
+    border-color: var(--accent);  
 }
 
-/* Textos y Estadísticas */
 .stat-number {
     font-size: 2.5rem;
     font-weight: 800;

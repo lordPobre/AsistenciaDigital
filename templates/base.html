@@ -10,13 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* =========================================
-           1. SISTEMA DE DISEÑO (VARIABLES)
-           ========================================= */
         :root {
             --font-main: 'Plus Jakarta Sans', sans-serif;
-
-            /* MODO CLARO */
             --bg-body: #f4f6f8;
             --bg-nav: rgba(255, 255, 255, 0.9);
             --bg-card: #ffffff;
@@ -26,22 +21,18 @@
             --input-bg: #f8fafc;
             --accent-primary: #4f46e5;
         }
-
-        /* MODO OSCURO (CONFIGURACIÓN) */
+        
         body.dark-mode {
-            --bg-body: #0f0f0f;       /* Negro Profundo */
+            --bg-body: #0f0f0f;       
             --bg-nav: rgba(15, 15, 15, 0.9);
-            --bg-card: #1e1e1e;       /* Gris Tecnológico */
-            --text-main: #ffffff;     /* Texto Blanco */
-            --text-muted: #a3a3a3;    /* Gris Claro */
+            --bg-card: #1e1e1e;       
+            --text-main: #ffffff;     
+            --text-muted: #a3a3a3;    
             --border-color: #333333;
             --input-bg: #2d2d2d;
             --accent-primary: #6366f1;
         }
 
-        /* =========================================
-           2. ESTILOS BASE
-           ========================================= */
         body {
             font-family: var(--font-main);
             background-color: var(--bg-body);
@@ -52,9 +43,6 @@
 
         a { text-decoration: none; }
 
-        /* =========================================
-           3. NAVBAR & GLASSMORPHISM
-           ========================================= */
         .navbar-glass {
             background-color: var(--bg-nav) !important;
             backdrop-filter: blur(12px);
@@ -63,14 +51,11 @@
             padding: 1rem 0;
         }
 
-        /* =========================================
-           4. COMPONENTES (Tarjetas, Inputs)
-           ========================================= */
         .card, .modal-content {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 24px;
-            color: var(--text-main); /* Asegura que el texto herede el color */
+            color: var(--text-main); 
         }
 
         .form-control, .form-select {
@@ -80,15 +65,8 @@
             border-radius: 12px;
         }
 
-        /* Fix para el placeholder y textos en inputs oscuros */
         body.dark-mode .form-control::placeholder { color: #888; }
         body.dark-mode .form-control { color: #fff !important; }
-
-        /* =========================================
-           5. 🚨 FIX CRÍTICO DE COLORES (LA SOLUCIÓN) 🚨
-           ========================================= */
-
-        /* FORZAR TEXTOS EN MODO OSCURO */
         body.dark-mode .text-dark,
         body.dark-mode .text-body,
         body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
@@ -100,7 +78,6 @@
             color: #a3a3a3 !important;
         }
 
-        /* FORZAR FONDOS BLANCOS A SER OSCUROS */
         body.dark-mode .bg-white,
         body.dark-mode .bg-light {
             background-color: #1e1e1e !important;
@@ -108,7 +85,6 @@
             border-color: #333 !important;
         }
 
-        /* FIX BOTONES CLAROS EN MODO OSCURO */
         body.dark-mode .btn-light,
         body.dark-mode .btn-white {
             background-color: #2d2d2d !important;
@@ -116,13 +92,11 @@
             border-color: #444 !important;
         }
 
-        /* FIX NAVBAR LINKS */
         body.dark-mode .navbar-brand span { color: #ffffff !important; }
         body.dark-mode .nav-link { color: #b0b0b0 !important; }
         body.dark-mode .nav-link.active,
         body.dark-mode .nav-link:hover { color: #ffffff !important; }
 
-        /* FIX DROPDOWNS (Menús desplegables) */
         body.dark-mode .dropdown-menu {
             background-color: #1e1e1e !important;
             border-color: #333 !important;
@@ -134,10 +108,7 @@
             background-color: #333 !important;
             color: #fff !important;
         }
-
-        /* =========================================
-           6. TABLAS MODERNAS
-           ========================================= */
+        
         .table {
             --bs-table-bg: transparent;
             --bs-table-color: var(--text-main);
@@ -154,14 +125,10 @@
             border-bottom: 1px solid #333;
         }
 
-        /* Fix para filas hover en oscuro */
         body.dark-mode .table-hover tbody tr:hover td {
             background-color: rgba(255,255,255,0.05);
         }
 
-        /* =========================================
-           7. UTILIDADES VISUALES
-           ========================================= */
         .text-primary { color: var(--accent-primary) !important; }
 
         .footer-glass {
@@ -171,14 +138,12 @@
             margin-top: 4rem;
         }
 
-        /* Botones con Gradiente */
         .btn-gradient-primary {
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             border: none;
             color: white;
         }
 
-        /* Scrollbar Oscuro */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-body); }
         ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
@@ -345,7 +310,6 @@
         const icon = toggleBtn ? toggleBtn.querySelector('i') : null;
         const body = document.body;
 
-        // Función para aplicar tema
         function aplicarTema(esOscuro) {
             if (esOscuro) {
                 body.classList.add('dark-mode');
@@ -362,13 +326,11 @@
             }
         }
 
-        // Cargar preferencia al inicio
         const preferenciaGuardada = localStorage.getItem('theme');
         if (preferenciaGuardada === 'dark') {
             aplicarTema(true);
         }
 
-        // Evento Click
         if(toggleBtn) {
             toggleBtn.addEventListener('click', () => {
                 const esOscuro = body.classList.toggle('dark-mode');

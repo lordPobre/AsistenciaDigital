@@ -3,7 +3,6 @@ from . import views
 
 
 urlpatterns = [
-    # 1. Pantalla Principal y Marcas
     path('', views.home, name='home'),
     path('marcar/', views.registrar_marca, name='registrar_marca'),
     path('mis-marcas/', views.mis_marcas, name='mis_marcas'),

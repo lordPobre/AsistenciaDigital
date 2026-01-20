@@ -13,22 +13,15 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
-# --- CONFIGURACIÓN PARA WEASYPRINT EN WINDOWS ---
-if os.name == 'nt':  # Si el sistema es Windows
-    # Ruta donde instalaste GTK en el Paso 1
+if os.name == 'nt':  
     GTK_FOLDER = r'C:\Program Files\GTK3-Runtime Win64\bin'
 
     try:
-        # Le decimos a Python: "Busca las librerías aquí"
         os.add_dll_directory(GTK_FOLDER)
-
-        # También lo agregamos al PATH por si acaso
         os.environ['PATH'] = GTK_FOLDER + ';' + os.environ.get('PATH', '')
     except OSError:
-        # Si no encuentra la carpeta, solo ignoramos (pero fallará WeasyPrint)
         pass
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -128,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'es-cl'  # Para que los errores salgan en español
+LANGUAGE_CODE = 'es-cl' 
 
 TIME_ZONE = 'America/Santiago'
 
@@ -152,7 +145,7 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': 'gZ1HphSGxvYCLFS2GCYLiUO4aDA', 
 }
 
-# Obligamos a Django a usar Cloudinary para los archivos Media
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
@@ -164,11 +157,6 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- CONFIGURACIÓN DE USUARIO PERSONALIZADO ---
-
-
-# --- CONFIGURACIÓN DE CORREO (Necesario para comprobantes) ---
-# En desarrollo puedes usar la consola para ver el email sin enviarlo:
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

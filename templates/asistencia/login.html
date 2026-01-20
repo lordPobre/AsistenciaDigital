@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso | Perseus Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* 1. FONDO ANIMADO */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 2. TARJETA DE CRISTAL (Glassmorphism) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); /* Safari */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Efecto de brillo superior */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -50%;
+            width: 100%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-25deg);
+            animation: shine 6s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        /* 3. LOGO Y TITULOS */
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: #fff;
+        }
+
+        h2 { font-weight: 700; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        p.subtitle { font-size: 0.9rem; opacity: 0.8; margin-bottom: 2rem; font-weight: 300; }
+
+        /* 4. INPUTS MODERNOS */
+        .input-group {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 5px 20px;
+            margin-bottom: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .input-group:focus-within {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+            transform: scale(1.02);
+        }
+
+        .input-icon {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding-right: 10px;
+        }
+
+        .form-control {
+            background: transparent !important;
+            border: none;
+            color: white !important;
+            font-weight: 500;
+            box-shadow: none !important;
+            padding: 10px 0;
+        }
+
+        .form-control::placeholder { color: rgba(255, 255, 255, 0.6); }
+
+        /* 5. BOTÓN GLOW */
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            border-radius: 50px;
+            background: #fff;
+            color: #333;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: #f8f9fa;
+        }
+
+        /* 6. ENLACES Y ALERTAS */
+        .links a {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .links a:hover { color: #fff; text-decoration: underline; }
+
+        .alert-custom {
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card fade-in">
+        <div class="logo-container">
+            <i class="fas fa-fingerprint logo-icon"></i>
+        </div>
+
+        <h2>Asistencia Digital</h2>
+        <p class="subtitle">Bienvenido a Perseus Control</p>
+
+        {% if form.errors %}
+            <div class="alert alert-custom mb-3 p-2">
+                <i class="fas fa-exclamation-circle me-2"></i> Usuario o contraseña incorrectos
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <div class="input-group">
+                <div class="input-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <input type="text" name="username" class="form-control" placeholder="RUT / Usuario" required autofocus>
+            </div>
+
+            <div class="input-group">
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
+            </div>
+
+            <button type="submit" class="btn btn-login">
+                Ingresar <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </form>
+
+        <div class="links mt-4">
+            <p class="mb-1">¿Olvidó su contraseña?</p>
+            <a>Contacte a Recursos Humanos</a>
+        </div>
+
+        <div class="mt-4 pt-3 border-top border-white border-opacity-25">
+            <small style="opacity: 0.6; font-size: 0.7rem;">&copy; 2025 Perseus Control</small>
+        </div>
+    </div>
+
+</body>
+</html>

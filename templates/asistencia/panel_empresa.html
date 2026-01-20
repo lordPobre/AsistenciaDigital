@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load l10n %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0 fw-bold">🏢 Panel de Gestión: <span class="text-primary">{{ nombre_empresa }}</span></h2>
+            <p class="text-muted mb-0">Visualización de marcas, geolocalización y fotos.</p>
+        </div>
+        <div class="mt-2 mt-md-0">
+            <span class="badge bg-dark shadow-sm">Vista Administrador</span>
+        </div>
+    </div>
+
+    <form method="GET" class="card p-3 shadow-sm border-0 mb-4 bg-light">
+        <div class="row g-3 align-items-end">
+
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-bold text-muted small text-uppercase mb-1">Buscar Trabajador</label>
+                <div class="input-group shadow-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="busqueda" value="{{ busqueda|default:'' }}" class="form-control border-start-0 ps-0" placeholder="Nombre o RUT...">
+                </div>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label fw-bold text-muted small text-uppercase mb-1">Desde</label>
+                <input type="date" name="fecha_inicio" value="{{ fecha_inicio }}" class="form-control shadow-sm">
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label fw-bold text-muted small text-uppercase mb-1">Hasta</label>
+                <input type="date" name="fecha_fin" value="{{ fecha_fin }}" class="form-control shadow-sm">
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="d-flex gap-2 flex-wrap">
+
+                    <button type="submit" class="btn btn-primary shadow-sm fw-bold text-white flex-grow-1">
+                        <i class="fas fa-filter me-2"></i> Filtrar
+                    </button>
+
+                    <button type="submit" formaction="{% url 'exportar_excel_empresa' %}" class="btn btn-white bg-white text-success border shadow-sm fw-bold" title="Descargar Excel Detallado">
+                        <i class="fas fa-file-excel fa-lg"></i>
+                    </button>
+
+                    <button type="button" class="btn btn-success shadow-sm fw-bold text-white" data-bs-toggle="modal" data-bs-target="#modalRemuneraciones" title="Generar Pre-Nómina LRE">
+                        <i class="fas fa-file-invoice-dollar"></i> LRE
+                    </button>
+
+                    <a href="{% url 'exportar_clima' %}" class="btn btn-info text-white shadow-sm fw-bold" title="Reporte de Ánimo">
+                        <i class="fas fa-heartbeat"></i>
+                    </a>
+
+                    <a href="{{ request.path }}" class="btn btn-light bg-white border shadow-sm text-muted" title="Limpiar Filtros">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="card shadow border-0 d-none d-md-block">
+        <div class="table-responsive rounded-3">
+            <table class="table table-striped table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Trabajador</th>
+                        <th>Cargo</th>
+                        <th>Fecha</th>
+                        <th>Tipo Marca</th>
+                        <th>Ubicación</th>
+                        <th class="text-center">Evidencia</th>
+                        <th class="text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for marca in marcas %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ marca.trabajador.first_name }} {{ marca.trabajador.last_name }}</div>
+                            <small class="text-muted">{{ marca.trabajador.perfil.rut }}</small>
+                        </td>
+
+                        <td><span class="badge bg-secondary bg-opacity-75">{{ marca.trabajador.perfil.cargo|default:"Trabajador" }}</span></td>
+
+                        <td>{{ marca.timestamp|date:"d/m/Y H:i" }}</td>
+
+                        <td>
+                            {% if marca.tipo == 'ENTRADA' %}
+                                <span class="badge bg-success">Entrada</span>
+                            {% elif 'COLACION' in marca.tipo %}
+                                <span class="badge bg-warning text-dark">Colación</span>
+                            {% else %}
+                                <span class="badge bg-danger">Salida</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-truncate" style="max-width: 150px;">
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ marca.latitud|unlocalize }},{{ marca.longitud|unlocalize }}" target="_blank" class="text-decoration-none text-dark hover-link">
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                <small>{{ marca.direccion|default:"Ver en Mapa" }}</small>
+                            </a>
+                        </td>
+
+                        <td class="text-center">
+                            {% if marca.foto %}
+                                <a href="{{ marca.foto.url }}" target="_blank">
+                                    <img src="{{ marca.foto.url }}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded-circle border shadow-sm hover-zoom">
+                                </a>
+                            {% else %}
+                                <i class="fas fa-camera-slash text-muted opacity-25"></i>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            {% if marca.tipo == 'SALIDA' and marca.animo %}
+                                <span class="d-inline-block cursor-pointer" data-bs-toggle="tooltip" title="{{ marca.comentario_animo|default:'Sin comentarios' }}">
+                                    {% if marca.animo == 'FELIZ' %} <span class="fs-5">😆</span>
+                                    {% elif marca.animo == 'NEUTRAL' %} <span class="fs-5 opacity-50">😐</span>
+                                    {% elif marca.animo == 'MOLESTO' %} <span class="fs-5">😫</span>
+                                    {% endif %}
+                                </span>
+                            {% else %}
+                                <small class="text-muted">-</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center py-5 text-muted">No hay marcas registradas con estos filtros.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-md-none">
+        {% for marca in marcas %}
+        <div class="card mb-3 shadow-sm border-0 rounded-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0 me-3">
+                        {% if marca.foto %}
+                            <a href="{{ marca.foto.url }}" target="_blank">
+                                <img src="{{ marca.foto.url }}" class="rounded-circle border" style="width: 55px; height: 55px; object-fit: cover;">
+                            </a>
+                        {% else %}
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center border" style="width: 55px; height: 55px;">
+                                <i class="fas fa-user text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-0 fw-bold">{{ marca.trabajador.first_name }} {{ marca.trabajador.last_name }}</h5>
+                        <small class="text-muted d-block">{{ marca.trabajador.perfil.cargo|default:"Trabajador" }}</small>
+                    </div>
+                </div>
+
+                <div class="row g-2 border-top pt-2 mt-2">
+                    <div class="col-6">
+                        <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Hora</small>
+                        <p class="mb-0 text-dark fw-bold">{{ marca.timestamp|date:"d/m H:i" }}</p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Evento</small>
+                        <div>
+                            {% if marca.tipo == 'ENTRADA' %}
+                                <span class="badge bg-success rounded-pill">Entrada</span>
+                            {% elif 'COLACION' in marca.tipo %}
+                                <span class="badge bg-warning text-dark rounded-pill">Colación</span>
+                            {% else %}
+                                <span class="badge bg-danger rounded-pill">Salida</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ marca.latitud|unlocalize }},{{ marca.longitud|unlocalize }}" target="_blank" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                            <i class="fas fa-map-marker-alt me-1"></i> Ver Ubicación GPS
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info text-center rounded-3 shadow-sm border-0">
+            No se encontraron marcas recientes.
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalRemuneraciones" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-success text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-file-invoice-dollar me-2"></i>Reporte Remuneraciones</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'reporte_remuneraciones' %}" method="GET">
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4">Selecciona el rango de fechas para el cálculo de sueldos (LRE).</p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-uppercase">Fecha Inicio</label>
+                        <input type="date" name="fecha_inicio" class="form-control shadow-sm" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-uppercase">Fecha Fin</label>
+                        <input type="date" name="fecha_fin" class="form-control shadow-sm" required>
+                    </div>
+
+                    <div class="alert alert-success bg-opacity-10 border-success small">
+                        <i class="fas fa-info-circle text-success me-1"></i> <strong>Incluye:</strong>
+                        <ul class="mb-0 ps-3 mt-1">
+                            <li>Días trabajados y ausencias.</li>
+                            <li>Horas extras (50% y 100%).</li>
+                            <li>Cálculo de Atrasos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-bold px-4 rounded-pill">Descargar Excel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Activar Tooltips para el estado de ánimo
+    document.addEventListener("DOMContentLoaded", function(){
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

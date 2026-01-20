@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: sans-serif; font-size: 12px; }
+
+        /* Estilos del Título Principal */
+        h1 { text-align: center; color: #333; margin-bottom: 5px; text-transform: uppercase; font-size: 18px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 10px; }
+
+        /* Sección de Datos (Empresa y Trabajador) */
+        .info-box {
+            width: 100%;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .info-row { margin-bottom: 5px; }
+        .label { font-weight: bold; color: #333; width: 120px; display: inline-block; }
+
+        /* Separador visual */
+        .divider { border-bottom: 1px dashed #999; margin: 10px 0; }
+
+        /* Tabla de Asistencia */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: #2c3e50; color: white; border: 1px solid #333; padding: 8px; font-size: 11px; }
+        td { border: 1px solid #999; padding: 6px; text-align: center; font-size: 11px; }
+
+        /* Hash pequeño */
+        .hash { font-family: monospace; font-size: 9px; color: #555; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+    <h1>Libro de Asistencia Digital</h1>
+    <div class="subtitle">Generado automáticamente por Perseus Control</div>
+
+    <div class="info-box" style="width: 100%; border: 1px solid #333; padding: 10px; margin-bottom: 20px;">
+
+        <table style="width: 100%; border: none; margin: 0;">
+            <tr>
+                <td style="width: 70%; text-align: left; vertical-align: top; border: none; padding: 0;">
+
+                    <div style="margin-bottom: 5px;">
+                        <strong style="text-transform: uppercase; font-size: 14px;">{{ empresa.nombre }}</strong>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">RUT Empresa:</span> {{ empresa.rut|default:"No registrado" }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Dirección:</span> {{ empresa.direccion|default:"No registrada" }}
+                    </div>
+
+                    <div style="border-bottom: 1px dashed #999; margin: 10px 0;"></div>
+
+                    <div class="info-row">
+                        <span class="label">Trabajador:</span> {{ usuario.first_name }} {{ usuario.last_name }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">RUT Trabajador:</span> {{ usuario.perfil.rut }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Cargo:</span> {{ usuario.perfil.cargo|default:"Jefe TI" }}
+                    </div>
+
+                </td>
+
+                <td style="width: 30%; text-align: right; vertical-align: top; border: none; padding: 0;">
+                    {% if logo_path %}
+                        <img src="{{ logo_path }}" style="max-height: 80px; width: auto;">
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">Fecha y Hora</th>
+                <th style="width: 15%;">Tipo</th>
+                <th style="width: 35%;">Ubicación</th>
+                <th style="width: 30%;">Firma Digital (Hash)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for marca in marcas %}
+            <tr>
+                <td>{{ marca.timestamp|date:"d/m/Y H:i:s" }}</td>
+                <td>
+                    {% if marca.tipo == 'ENTRADA' %}
+                        <span style="color: green;">ENTRADA</span>
+                    {% elif 'COLACION' in marca.tipo %}
+                        <span style="color: orange;">{{ marca.tipo }}</span>
+                    {% else %}
+                        <span style="color: red;">SALIDA</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if marca.direccion %}
+                        {{ marca.direccion }}
+                    {% else %}
+                        <small>Lat: {{ marca.latitud }}<br>Lon: {{ marca.longitud }}</small>
+                    {% endif %}
+                </td>
+                <td class="hash">{{ marca.hash_actual }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="padding: 20px;">No hay registros de asistencia para este periodo.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 60px; text-align: center;">
+        <p>___________________________________</p>
+        <p><strong>{{ usuario.first_name }} {{ usuario.last_name }}</strong></p>
+        <p style="font-size: 10px; color: #666;">Firma Conforme - RUT: {{ usuario.perfil.rut }}</p>
+    </div>
+
+</body>
+</html>

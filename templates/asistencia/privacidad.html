@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <div class="text-center mb-5">
+                <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+                    <i class="fas fa-user-shield fa-3x text-primary"></i>
+                </div>
+                <h2 class="fw-bold text-dark">Política de Privacidad y Protección de Datos</h2>
+                <p class="text-muted">Última actualización: {% now "d de F de Y" %}</p>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5">
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold text-primary mb-3"><i class="fas fa-info-circle me-2"></i>1. Uso de la Información</h4>
+                        <p class="text-muted text-justify">
+                            <strong>Perseus Enterprise</strong> utiliza la plataforma "Asistencia Digital" exclusivamente para el registro, control y gestión de la asistencia laboral, en cumplimiento con las normativas vigentes de la Dirección del Trabajo (DT). Los datos recopilados no serán utilizados para fines comerciales, publicitarios ni cedidos a terceros ajenos a la relación laboral.
+                        </p>
+                    </div>
+
+                    <hr class="my-4 opacity-10">
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold text-primary mb-3"><i class="fas fa-map-marked-alt me-2"></i>2. Datos de Geolocalización (GPS)</h4>
+                        <p class="text-muted">
+                            La aplicación recopila datos de ubicación geográfica (latitud y longitud) <strong>únicamente en el momento exacto</strong> en que el usuario presiona los botones de marcaje (Entrada, Salida, Colación).
+                        </p>
+                        <ul class="text-muted small">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>No se realiza rastreo en segundo plano ni fuera del horario laboral.</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>El objetivo es validar que el marcaje se realice dentro de los perímetros autorizados por el empleador.</li>
+                        </ul>
+                    </div>
+
+                    <hr class="my-4 opacity-10">
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold text-primary mb-3"><i class="fas fa-camera me-2"></i>3. Registro Biométrico / Fotográfico</h4>
+                        <p class="text-muted">
+                            Para validar la identidad del trabajador, el sistema captura una fotografía en tiempo real al momento de realizar una marca.
+                        </p>
+                        <div class="alert alert-light border border-primary border-opacity-25 rounded-3">
+                            <small class="text-primary fw-bold">
+                                <i class="fas fa-lock me-2"></i>Seguridad de la Imagen:
+                            </small>
+                            <span class="text-muted small">Las imágenes son almacenadas de forma encriptada y solo son accesibles por el personal de Recursos Humanos o Fiscalizadores autorizados para fines de auditoría.</span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 opacity-10">
+
+                    <div class="mb-5">
+                        <h4 class="fw-bold text-primary mb-3"><i class="fas fa-file-contract me-2"></i>4. Derechos del Trabajador</h4>
+                        <p class="text-muted">
+                            Todo trabajador tiene derecho a solicitar a Recursos Humanos:
+                        </p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100 border">
+                                    <h6 class="fw-bold text-dark"><i class="fas fa-eye me-2"></i>Acceso</h6>
+                                    <small class="text-muted">Ver su historial completo de marcas y fotografías.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100 border">
+                                    <h6 class="fw-bold text-dark"><i class="fas fa-edit me-2"></i>Rectificación</h6>
+                                    <small class="text-muted">Solicitar corrección de horas mal registradas mediante el formulario de "Solicitudes".</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-center">
+                        <p class="small text-muted mb-3">Si tienes dudas sobre el tratamiento de tus datos, contacta al área de RRHH.</p>
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary rounded-pill px-4 fw-bold">
+                            <i class="fas fa-arrow-left me-2"></i> Volver al Panel
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Títulos en modo oscuro */
+    body.dark-mode h2,
+    body.dark-mode h4,
+    body.dark-mode h6 {
+        color: #ffffff !important;
+    }
+
+    /* Textos explicativos en modo oscuro */
+    body.dark-mode p.text-muted,
+    body.dark-mode ul.text-muted,
+    body.dark-mode span.text-muted,
+    body.dark-mode small.text-muted {
+        color: #b0b3b8 !important;
+    }
+
+    /* Cajas de alerta y tarjetas internas en modo oscuro */
+    body.dark-mode .alert-light,
+    body.dark-mode .bg-light {
+        background-color: rgba(255,255,255,0.05) !important;
+        border-color: #444 !important;
+        color: #e0e0e0 !important;
+    }
+
+    body.dark-mode .text-dark {
+        color: #ffffff !important;
+    }
+</style>
+{% endblock %}

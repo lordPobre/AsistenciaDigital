@@ -1,0 +1,804 @@
+{% extends 'base.html' %}
+{% load l10n %}
+
+{% block content %}
+
+<style>
+    /* =========================================
+       1. FIX DE COLORES (ADAPTATIVO)
+       ========================================= */
+    /* Esta clase fuerza el color correcto según el modo (Día/Noche) */
+    .text-adaptive {
+        color: var(--text-main) !important;
+    }
+
+    /* Subtítulos sutiles */
+    .text-adaptive-muted {
+        color: var(--text-muted) !important;
+    }
+
+    /* Tarjetas Bento */
+    .bento-card {
+        background-color: var(--bg-card);
+        color: var(--text-main);
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
+        height: 100%;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: var(--shadow-card, 0 4px 6px rgba(0,0,0,0.05));
+    }
+    .bento-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Botones de Acción (Tiles) */
+    .btn-action-tile {
+        width: 100%; height: 100%; min-height: 120px;
+        border-radius: 24px; border: none;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: white !important; /* Los de colores (Verde/Rojo) siempre blancos */
+        transition: all 0.2s ease;
+        position: relative; overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .btn-action-tile:hover { transform: translateY(-3px); filter: brightness(1.1); }
+
+    /* Gradientes */
+    .btn-gradient-green { background: linear-gradient(135deg, #00b09b, #96c93d); }
+    .btn-gradient-orange { background: linear-gradient(135deg, #f09819, #edde5d); color: #000 !important; }
+    .btn-gradient-red { background: linear-gradient(135deg, #cb2d3e, #ef473a); }
+    .btn-gradient-blue { background: linear-gradient(135deg, #1a2980, #26d0ce); }
+
+    /* Botón Secundario (Gris) - CORREGIDO PARA MODO CLARO */
+    /* Este botón ahora cambia de color según el tema */
+    .btn-gradient-dark {
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-main) !important;
+    }
+    .btn-gradient-dark:hover { background: var(--border-color); }
+
+    /* Visor Cámara */
+    .scanner-container {
+        position: relative; border-radius: 24px; overflow: hidden;
+        border: 1px solid var(--border-color); background-color: #000;
+    }
+    .status-dot {
+        height: 10px; width: 10px; background-color: #00dc82;
+        border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #00dc82;
+    }
+
+    /* Historial */
+    .history-item {
+        background-color: var(--input-bg);
+        border: 1px solid transparent; transition: all 0.2s;
+    }
+    .history-item:hover { border-color: var(--border-color); transform: translateX(4px); }
+
+    .icon-circle {
+        width: 40px; height: 40px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    }
+
+    /* Colores Estados */
+    .bg-success-subtle { background-color: rgba(25, 135, 84, 0.15) !important; color: #198754 !important; }
+    .bg-danger-subtle  { background-color: rgba(220, 53, 69, 0.15) !important; color: #dc3545 !important; }
+    .bg-warning-subtle { background-color: rgba(255, 193, 7, 0.15) !important;  color: #b48900 !important; }
+
+    /* Ajustes específicos Dark Mode */
+    body.dark-mode .bg-success-subtle { color: #75b798 !important; }
+    body.dark-mode .bg-danger-subtle  { color: #ea868f !important; }
+    body.dark-mode .bg-warning-subtle { color: #ffda6a !important; }
+</style>
+
+<div class="container-fluid py-4">
+
+    <div class="row mb-5 align-items-center">
+
+        <div class="col-12 col-xl-4 text-center text-xl-start mb-3 mb-xl-0">
+            <h6 class="text-uppercase fw-bold ls-1 mb-1 text-adaptive-muted" style="font-size: 0.75rem;">Panel de Control</h6>
+            <h2 class="fw-bold mb-0 text-adaptive">
+                Hola, <span style="color: var(--accent-orange);">{{ user.first_name }}</span>
+            </h2>
+            <div class="d-flex align-items-center justify-content-center justify-content-xl-start mt-2 gap-2">
+                <span class="badge badge-soft bg-light border text-adaptive">
+                    <i class="fas fa-briefcase me-2"></i>{{ user.perfil.cargo|default:"Colaborador" }}
+                </span>
+                <div id="status-gps" class="badge badge-soft bg-light border text-adaptive-muted">
+                    <i class="fas fa-satellite-dish me-2"></i> Buscando GPS...
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4 d-flex justify-content-center mb-3 mb-xl-0">
+            <div class="bento-card py-3 px-5 text-center shadow-lg" style="min-width: 280px; border-width: 0px; background: var(--bg-card); position: relative; overflow: hidden;">
+
+                <div class="position-absolute top-0 start-50 translate-middle-x bg-primary opacity-10 rounded-pill" style="width: 60%; height: 4px;"></div>
+
+                <small class="d-block text-uppercase text-adaptive-muted fw-bold ls-2 mb-1" style="font-size: 0.7rem;">HORA LOCAL</small>
+
+                <div id="reloj-vivo" class="display-4 fw-bold text-adaptive" style="font-family: 'Courier New', monospace; letter-spacing: -2px; line-height: 1;">
+                    --:--:--
+                </div>
+
+                <div class="mt-2">
+                    <span class="badge bg-light border text-adaptive fw-bold px-3 py-1 rounded-pill">
+                        <i class="far fa-calendar-alt me-2 text-primary"></i>{% now "d F, Y" %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 d-none d-xl-block">
+            <div class="card border-0 shadow-sm bg-white" style="border-radius: 20px; overflow: hidden;">
+                <div class="card-body p-3 d-flex align-items-center justify-content-between">
+
+                    <div style="flex: 1;">
+                        <h6 class="text-uppercase text-muted fw-bold ls-1 mb-2" style="font-size: 0.65rem;">Mi Semana</h6>
+                        <div class="d-flex flex-column gap-1">
+                            <small class="fw-bold text-success"><i class="fas fa-smile me-2"></i>{{ mi_feliz }} Días Felices</small>
+                            <small class="fw-bold text-warning"><i class="fas fa-meh me-2"></i>{{ mi_neutral }} Días Normales</small>
+                            <small class="fw-bold text-danger"><i class="fas fa-frown me-2"></i>{{ mi_molesto }} Días Difíciles</small>
+                        </div>
+                    </div>
+
+                    <div style="width: 100px; height: 100px; position: relative;">
+                        <canvas id="miGraficoAnimo"></canvas>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-4">
+            <div class="bento-card p-0 overflow-hidden d-flex flex-column">
+
+                <div class="p-4 border-bottom" style="border-color: var(--border-color) !important; background-color: var(--input-bg);">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold text-adaptive">Estado Actual</span>
+                        {% if not ultima_marca or ultima_marca.tipo == 'SALIDA' %}
+                            <span class="badge bg-danger-subtle border border-danger px-3 py-2 rounded-pill">🔴 Fuera de Turno</span>
+                        {% elif ultima_marca.tipo == 'INICIO_COLACION' %}
+                            <span class="badge bg-warning-subtle border border-warning px-3 py-2 rounded-pill">🍔 En Colación</span>
+                        {% else %}
+                            <span class="badge bg-success-subtle border border-success px-3 py-2 rounded-pill">🟢 Trabajando</span>
+                        {% endif %}
+                    </div>
+                    <small class="text-adaptive-muted">La cámara se usa para validar tu identidad.</small>
+                </div>
+
+                <div class="flex-grow-1 bg-black position-relative d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                    <video id="video" class="w-100 h-100" autoplay playsinline style="object-fit: cover;"></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
+
+                    <div class="position-absolute top-0 start-0 m-3 border-top border-start border-white border-3" style="width: 30px; height: 30px; opacity: 0.5;"></div>
+                    <div class="position-absolute top-0 end-0 m-3 border-top border-end border-white border-3" style="width: 30px; height: 30px; opacity: 0.5;"></div>
+                    <div class="position-absolute bottom-0 start-0 m-3 border-bottom border-start border-white border-3" style="width: 30px; height: 30px; opacity: 0.5;"></div>
+                    <div class="position-absolute bottom-0 end-0 m-3 border-bottom border-end border-white border-3" style="width: 30px; height: 30px; opacity: 0.5;"></div>
+
+                    <div class="position-absolute bottom-0 w-100 text-center pb-3">
+                        <span class="badge bg-black bg-opacity-75 text-white border border-secondary">
+                            <span class="status-dot me-2"></span>Cámara Activa
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <form method="post" action="{% url 'registrar_marca' %}" id="form-marcar" class="h-100">
+                {% csrf_token %}
+                <input type="hidden" id="lat" name="latitud">
+                <input type="hidden" id="lon" name="longitud">
+                <input type="hidden" name="foto_base64" id="foto_base64">
+                <input type="hidden" name="tipo" id="tipo_marca">
+
+                <div class="row g-3 h-100">
+
+                   {% if not ultima_marca or ultima_marca.tipo == 'SALIDA' %}
+                        <div class="col-12">
+                            <button type="submit" value="ENTRADA" class="btn-action-tile btn-gradient-green btn-marcar requiere-validacion" onclick="capturarFoto()" disabled>
+                                <div id="icono-entrada">
+                                    <i class="fas fa-satellite-dish fa-spin mb-3 fa-2x"></i> </div>
+                                <span class="h4 fw-bold mb-0">MARCAR ENTRADA</span>
+                                <small class="d-block mt-2" id="msg-entrada">Esperando GPS y Cámara...</small>
+                            </button>
+                        </div>
+
+                    {% elif ultima_marca.tipo == 'INICIO_COLACION' %}
+                        <div class="col-12">
+                            <button type="submit" value="FIN_COLACION" class="btn-action-tile btn-gradient-blue btn-marcar" onclick="capturarFoto()">
+                                <i class="fas fa-utensils fa-3x mb-3"></i>
+                                <span class="h4 fw-bold mb-0">VOLVER DE COLACIÓN</span>
+                                <small class="opacity-75">Retomar Jornada</small>
+                            </button>
+                        </div>
+
+                    {% else %}
+                        <div class="col-6">
+                            <button type="submit" value="INICIO_COLACION" class="btn-action-tile btn-gradient-orange btn-marcar" onclick="capturarFoto()">
+                                <i class="fas fa-coffee fa-2x mb-2"></i>
+                                <span class="h5 fw-bold mb-0">COLACIÓN</span>
+                            </button>
+                        </div>
+
+                        <div class="col-6">
+                            <button type="button" class="btn-action-tile btn-gradient-red requiere-validacion" onclick="prepararSalida()" data-bs-toggle="modal" data-bs-target="#modalTermometro" disabled>
+                                <i class="fas fa-lock mb-2 fa-2x" id="icono-salida"></i>
+                                <span class="h5 fw-bold mb-0">SALIDA</span>
+                                <small class="d-block" style="font-size: 0.6rem;" id="msg-salida">Esperando hardware...</small>
+                            </button>
+                        </div>
+                    {% endif %}
+
+                    <div class="col-6">
+                        <button type="button" class="btn-action-tile btn-gradient-dark w-100" data-bs-toggle="modal" data-bs-target="#modalCrearSolicitud" style="min-height: 100px;">
+                            <i class="fas fa-file-contract fa-2x mb-2 text-warning"></i>
+                            <small class="fw-bold text-adaptive d-block" style="font-size: 0.75rem;">Solicitud</small>
+                        </button>
+                    </div>
+
+                    <div class="col-6">
+                        <a href="{% url 'mis_vacaciones' %}" class="btn-action-tile btn-gradient-dark text-decoration-none w-100" style="min-height: 100px;">
+                            <i class="fas fa-plane fa-2x mb-2 text-success"></i>
+                            <small class="fw-bold text-adaptive d-block" style="font-size: 0.75rem;">Vacaciones</small>
+                        </a>
+                    </div>
+
+                    <div class="col-6">
+                        <a href="{% url 'mis_dias_administrativos' %}" class="btn-action-tile btn-gradient-dark text-decoration-none w-100" style="min-height: 100px;">
+                            <i class="fas fa-briefcase fa-2x mb-2 text-primary"></i> <small class="fw-bold text-adaptive d-block" style="font-size: 0.75rem;">Días Admin.</small>
+                        </a>
+                    </div>
+
+                    <div class="col-6">
+                        <a href="{% url 'reporte_pdf' %}" class="btn-action-tile btn-gradient-dark text-decoration-none w-100" style="min-height: 100px;">
+                            <i class="fas fa-download fa-2x mb-2 text-info"></i>
+                            <small class="fw-bold text-adaptive d-block" style="font-size: 0.75rem;">PDFs</small>
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="bento-card d-flex flex-column h-100" style="min-height: 400px;">
+
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom" style="border-color: var(--border-color) !important;">
+                    <h5 class="fw-bold m-0 text-adaptive">
+                        <i class="fas fa-history text-primary me-2"></i>Historial
+                    </h5>
+                    <span class="badge bg-light border text-muted rounded-pill px-3">{{ marcas.count }}</span>
+                </div>
+
+                <div class="flex-grow-1 overflow-auto custom-scrollbar pe-2">
+
+                    {% for marca in marcas %}
+                    <div class="d-flex align-items-center p-3 mb-2 rounded-4 history-item">
+
+                        <div class="flex-shrink-0 me-3">
+                            <div class="icon-circle
+                                {% if marca.tipo == 'ENTRADA' %} bg-success-subtle
+                                {% elif marca.tipo == 'SALIDA' %} bg-danger-subtle
+                                {% else %} bg-warning-subtle {% endif %}">
+
+                                {% if marca.tipo == 'ENTRADA' %}
+                                    <i class="fas fa-arrow-right"></i>
+                                {% elif marca.tipo == 'SALIDA' %}
+                                    <i class="fas fa-arrow-left"></i>
+                                {% else %}
+                                    <i class="fas fa-pause"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h6 class="mb-0 fw-bold text-adaptive text-truncate">
+                                {% if marca.tipo == 'ENTRADA' %}
+                                    Entrada
+                                {% elif marca.tipo == 'SALIDA' %}
+                                    Salida
+                                {% elif marca.tipo == 'INICIO_COLACION' %}
+                                    Inicio de Colación
+                                {% elif marca.tipo == 'FIN_COLACION' %}
+                                    Fin de Colación
+                                {% else %}
+                                    {{ marca.tipo|title }}
+                                {% endif %}
+                            </h6>
+                            <small class="text-adaptive-muted d-block text-truncate" style="font-size: 0.75rem;">
+                                <i class="fas fa-map-marker-alt me-1 opacity-50"></i>
+                                {{ marca.direccion|default:"Ubicación GPS" }}
+                            </small>
+                        </div>
+
+                        <div class="flex-shrink-0 ms-2 text-end">
+                            <span class="badge bg-light border font-monospace text-muted">
+                                {{ marca.timestamp|date:"H:i" }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 text-muted opacity-50">
+                        <i class="fas fa-clock fa-3x mb-3"></i>
+                        <p class="small">Sin marcas hoy</p>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            {% if solicitudes %}
+            <div class="mt-3 p-3 bg-warning bg-opacity-10 border border-warning rounded-3">
+                <div class="d-flex align-items-center text-warning">
+                    <i class="fas fa-bell me-2"></i>
+                    <small class="fw-bold">{{ solicitudes.count }} Solicitudes Pendientes</small>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <div id="aviso-offline" class="position-fixed bottom-0 start-50 translate-middle-x mb-4 p-3 rounded-pill bg-danger text-white shadow-lg fw-bold" style="display: none; z-index: 9999;">
+        <i class="fas fa-wifi-slash me-2"></i> MODO OFFLINE ACTIVADO
+    </div>
+
+</div>
+
+<div class="modal fade" id="modalCrearSolicitud" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border shadow-lg rounded-4">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold text-adaptive">Nueva Solicitud</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'crear_solicitud_trabajador' %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label text-adaptive-muted small fw-bold">TIPO DE SOLICITUD</label>
+                        <select name="tipo_solicitud" id="select_tipo_solicitud" class="form-select" onchange="alternarFormulario()">
+                            <option value="NUEVA">Olvidé Marcar</option>
+                            <option value="RECTIFICACION">Corregir Hora</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-secondary bg-opacity-10 rounded" id="div_marca_original" style="display:none;">
+                        <label class="form-label small fw-bold text-adaptive">MARCA A CORREGIR:</label>
+                        <select name="marca_id" class="form-select">
+                            {% for m in marcas %}
+                                <option value="{{ m.id }}">{{ m.timestamp|date:"H:i" }} - {{ m.tipo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="div_tipo_marca">
+                        <label class="form-label text-adaptive-muted small fw-bold">TIPO DE MARCA</label>
+                        <select name="tipo_marca" class="form-select">
+                            <option value="ENTRADA">Entrada</option>
+                            <option value="SALIDA">Salida</option>
+                            <option value="INICIO_COLACION">Inicio Colación</option>
+                            <option value="FIN_COLACION">Fin Colación</option>
+                        </select>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-adaptive-muted small fw-bold">FECHA REAL</label>
+                            <input type="date" name="fecha" class="form-control" value="{% now 'Y-m-d' %}" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-adaptive-muted small fw-bold">HORA REAL</label>
+                            <input type="time" name="hora" class="form-control" required>
+                        </div>
+                    </div>
+                    <textarea name="motivo" class="form-control" rows="2" placeholder="Describe el motivo..." required></textarea>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Enviar Solicitud</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalTermometro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-0 p-4" style="background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);">
+                <div>
+                    <h4 class="modal-title fw-bold mb-1 text-white">¡Buen trabajo hoy!</h4>
+                    <p class="mb-0 text-white opacity-75 small">Antes de irte, cuéntanos...</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-4 text-center bg-card"> <h5 class="fw-bold mb-4 text-adaptive">¿Cómo te sentiste durante tu jornada?</h5>
+
+                <form method="post" action="{% url 'registrar_marca' %}" id="form-salida-real">
+                    {% csrf_token %}
+                    <input type="hidden" name="tipo" value="SALIDA">
+                    <input type="hidden" name="latitud" id="lat_salida">
+                    <input type="hidden" name="longitud" id="lon_salida">
+                    <input type="hidden" name="foto_base64" id="foto_salida">
+                    <input type="hidden" name="animo" id="input_animo" required>
+
+                    <div class="d-flex justify-content-center gap-3 mb-4">
+                        <label class="emoji-option p-3 bg-secondary bg-opacity-25 rounded-4 cursor-pointer border border-secondary" onclick="seleccionarAnimo('FELIZ', this)" style="cursor: pointer;">
+                            <div class="h1 mb-0">😆</div>
+                            <span class="small fw-bold d-block mt-2 text-adaptive">Motivado</span>
+                        </label>
+
+                        <label class="emoji-option p-3 bg-secondary bg-opacity-25 rounded-4 cursor-pointer border border-secondary" onclick="seleccionarAnimo('NEUTRAL', this)" style="cursor: pointer;">
+                            <div class="h1 mb-0">😐</div>
+                            <span class="small fw-bold d-block mt-2 text-adaptive">Normal</span>
+                        </label>
+
+                        <label class="emoji-option p-3 bg-secondary bg-opacity-25 rounded-4 cursor-pointer border border-secondary" onclick="seleccionarAnimo('MOLESTO', this)" style="cursor: pointer;">
+                            <div class="h1 mb-0">😫</div>
+                            <span class="small fw-bold d-block mt-2 text-adaptive">Agotado</span>
+                        </label>
+                    </div>
+
+                    <div id="div-comentario" class="collapse">
+                        <textarea name="comentario_animo" class="form-control mb-3" rows="2" placeholder="¿Quieres contarnos qué pasó? (Opcional)"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-light w-100 py-3 rounded-pill fw-bold shadow-sm" id="btn-confirmar-salida" disabled>
+                        <i class="fas fa-check-circle me-2"></i> CONFIRMAR SALIDA
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // ==========================================
+    // 1. VARIABLES GLOBALES Y CONFIGURACIÓN
+    // ==========================================
+    let gpsActivo = false;
+    let camaraActiva = false;
+    let tipoSeleccionado = 'ENTRADA';
+    const video = document.getElementById('video');
+    const form = document.getElementById('form-marcar');
+    // [CORRECCIÓN]: Agregamos referencia al formulario del modal de salida
+    const formSalida = document.getElementById('form-salida-real'); 
+    const aviso = document.getElementById('aviso-offline');
+
+    // Sincronización de hora Servidor-Cliente
+    const serverTimeInicial = {% now "U" %} * 1000;
+    const clientTimeInicial = Date.now();
+    const diferenciaTiempo = serverTimeInicial - clientTimeInicial;
+
+    // Función auxiliar para obtener CSRF Token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // Buscamos el canvas
+        const canvasAnimo = document.getElementById('miGraficoAnimo');
+
+        if (canvasAnimo) {
+            const ctx = canvasAnimo.getContext('2d');
+            const feliz = parseInt("{{ mi_feliz|default:0 }}");
+            const neutral = parseInt("{{ mi_neutral|default:0 }}");
+            const molesto = parseInt("{{ mi_molesto|default:0 }}");
+            const total = feliz + neutral + molesto;
+
+            let datosGrafico, coloresGrafico;
+
+            if (total === 0) {
+                datosGrafico = [1];
+                coloresGrafico = ['#e9ecef'];
+            } else {
+                datosGrafico = [feliz, neutral, molesto];
+                coloresGrafico = ['#28a745', '#ffc107', '#dc3545'];
+            }
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Bien', 'Normal', 'Mal'],
+                    datasets: [{
+                        data: datosGrafico,
+                        backgroundColor: coloresGrafico,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: (total > 0) }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+        }
+    });
+
+    // ==========================================
+    // 2. LÓGICA VISUAL
+    // ==========================================
+    function seleccionarAnimo(valor, elemento) {
+        document.getElementById('input_animo').value = valor;
+        document.querySelectorAll('.emoji-option').forEach(el => {
+            el.classList.remove('bg-white', 'text-dark', 'border-white');
+            el.classList.add('bg-secondary', 'bg-opacity-25', 'border-secondary');
+        });
+        elemento.classList.remove('bg-secondary', 'bg-opacity-25', 'border-secondary');
+        elemento.classList.add('bg-primary', 'bg-opacity-10', 'border-primary');
+
+        const btn = document.getElementById('btn-confirmar-salida');
+        if(btn) {
+            btn.disabled = false;
+            btn.classList.remove('btn-light');
+            btn.classList.add('btn-success', 'text-white');
+        }
+
+        const divComentario = document.getElementById('div-comentario');
+        if (valor === 'MOLESTO' || valor === 'FELIZ') {
+            new bootstrap.Collapse(divComentario, { toggle: false }).show();
+        } else {
+            new bootstrap.Collapse(divComentario, { toggle: false }).hide();
+        }
+    }
+
+    function actualizarReloj() {
+        const ahoraReal = new Date(Date.now() + diferenciaTiempo);
+        const opciones = { timeZone: 'America/Santiago', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        document.getElementById('reloj-vivo').innerText = ahoraReal.toLocaleTimeString('es-CL', opciones);
+    }
+    setInterval(actualizarReloj, 1000);
+    actualizarReloj();
+
+    // ==========================================
+    // 3. SEGURIDAD: VERIFICADOR DE HARDWARE
+    // ==========================================
+    function verificarHardware() {
+        const botonesEstrictos = document.querySelectorAll('.requiere-validacion');
+
+        if (gpsActivo && camaraActiva) {
+            botonesEstrictos.forEach(btn => {
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
+            });
+            const msgEntrada = document.getElementById('msg-entrada');
+            if(msgEntrada) msgEntrada.innerText = "Iniciar Jornada Laboral";
+            
+            const msgSalida = document.getElementById('msg-salida');
+            if(msgSalida) msgSalida.innerText = "Terminar Turno";
+        } else {
+            botonesEstrictos.forEach(btn => {
+                btn.disabled = true;
+                btn.style.opacity = "0.6";
+                btn.style.cursor = "not-allowed";
+            });
+        }
+    }
+
+    // ==========================================
+    // 4. INICIALIZACIÓN DE DISPOSITIVOS
+    // ==========================================
+    function iniciarCamara() {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then(function(stream) {
+            video.srcObject = stream;
+            camaraActiva = true;
+            verificarHardware();
+        })
+        .catch(function(err) {
+            console.error("Error cámara:", err);
+            camaraActiva = false;
+            verificarHardware();
+        });
+    }
+
+    function iniciarGPS() {
+        const statusText = document.getElementById('status-gps');
+        const latInput = document.getElementById('lat');
+        const lonInput = document.getElementById('lon');
+
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(function(position) {
+                latInput.value = position.coords.latitude;
+                lonInput.value = position.coords.longitude;
+                gpsActivo = true;
+                verificarHardware();
+                statusText.innerHTML = '<i class="fas fa-map-marker-alt me-2"></i> GPS Activo';
+                statusText.className = "badge bg-success bg-opacity-25 text-success border border-success rounded-pill px-3";
+            }, function(error) {
+                gpsActivo = false;
+                verificarHardware();
+                statusText.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i> Sin GPS';
+                statusText.className = "badge bg-danger bg-opacity-25 text-danger border border-danger rounded-pill px-3";
+            }, { enableHighAccuracy: true });
+        }
+    }
+
+    // ==========================================
+    // 5. FUNCIONES DE CAPTURA
+    // ==========================================
+    function capturarFoto() {
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        document.getElementById('foto_base64').value = canvas.toDataURL('image/jpeg', 0.8);
+    }
+
+    function prepararSalida() {
+        capturarFoto();
+        document.getElementById('lat_salida').value = document.getElementById('lat').value;
+        document.getElementById('lon_salida').value = document.getElementById('lon').value;
+        document.getElementById('foto_salida').value = document.getElementById('foto_base64').value;
+    }
+
+    document.querySelectorAll('.btn-marcar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            tipoSeleccionado = this.value;
+            document.getElementById('tipo_marca').value = tipoSeleccionado;
+        });
+    });
+
+    // ==========================================
+    // 6. CONTROL DE ENVÍO (Fetch y Offline)
+    // ==========================================
+    function actualizarEstadoRed() {
+        if (navigator.onLine) {
+            aviso.style.display = 'none';
+            sincronizarPendientes();
+        } else {
+            aviso.style.display = 'block';
+        }
+    }
+    window.addEventListener('online', actualizarEstadoRed);
+    window.addEventListener('offline', actualizarEstadoRed);
+
+    // FUNCIÓN COMÚN PARA ENVIAR DATOS
+    function manejarEnvio(e, origen) {
+        e.preventDefault(); // Detenemos el envío tradicional
+        capturarFoto();
+
+        if (!navigator.onLine) {
+            guardarEnDispositivo();
+        } else {
+            // Recolectar datos (mirando inputs de ambos lugares por si acaso)
+            const formData = {
+                tipo: document.getElementById('tipo_marca').value || (origen === 'SALIDA' ? 'SALIDA' : 'ENTRADA'),
+                latitud: document.getElementById('lat').value,
+                longitud: document.getElementById('lon').value,
+                foto_base64: document.getElementById('foto_base64').value,
+                animo: document.getElementById('input_animo') ? document.getElementById('input_animo').value : '',
+                comentario_animo: document.getElementById('comentario_animo') ? document.getElementById('comentario_animo').value : ''
+            };
+
+            fetch('/marcar/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    // ¡ÉXITO MODERNO!
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Marca Registrada!',
+                        text: data.mensaje || "Todo salió perfecto.",
+                        confirmButtonText: 'Genial',
+                        confirmButtonColor: '#28a745',
+                        timer: 3000,
+                        timerProgressBar: true
+                    }).then((result) => {
+                        window.location.reload(); 
+                    });
+                } else {
+                    // ERROR CONTROLADO
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: data.error || "Hubo un problema.",
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de Conexión',
+                    text: 'No pudimos contactar con el servidor.',
+                    confirmButtonColor: '#d33'
+                });
+            });
+        }
+    }
+
+    // 1. Escuchador para Formulario PRINCIPAL (Entrada/Colación)
+    if (form) {
+        form.addEventListener('submit', function(e) { manejarEnvio(e, 'PRINCIPAL'); });
+    }
+
+    // 2. [CORRECCIÓN CRÍTICA] Escuchador para Formulario SALIDA (Modal)
+    // Esto evita la pantalla blanca al marcar salida
+    if (formSalida) {
+        formSalida.addEventListener('submit', function(e) {
+            // Aseguramos que la foto esté en el input del modal
+            document.getElementById('foto_salida').value = document.getElementById('foto_base64').value;
+            manejarEnvio(e, 'SALIDA');
+        });
+    }
+
+    function guardarEnDispositivo() {
+        // ... (Tu lógica original offline intacta) ...
+        const lat = document.getElementById('lat').value;
+        const lon = document.getElementById('lon').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const marcaData = {
+            tipo: tipoSeleccionado, latitud: lat, longitud: lon,
+            fecha_offline: new Date().toISOString(), csrf_token: csrfToken
+        };
+        let pendientes = JSON.parse(localStorage.getItem('marcas_pendientes') || '[]');
+        pendientes.push(marcaData);
+        localStorage.setItem('marcas_pendientes', JSON.stringify(pendientes));
+        alert(`📴 MODO OFFLINE: Marca guardada localmente.`);
+    }
+
+    async function sincronizarPendientes() {
+        // ... (Tu lógica original sync intacta) ...
+        let pendientes = JSON.parse(localStorage.getItem('marcas_pendientes') || '[]');
+        if (pendientes.length === 0) return;
+        const urlDestino = '/marcar/'; 
+        for (let marca of pendientes) {
+            let formData = new FormData();
+            formData.append('tipo', marca.tipo); formData.append('latitud', marca.latitud);
+            formData.append('longitud', marca.longitud); formData.append('fecha_offline', marca.fecha_offline);
+            formData.append('csrfmiddlewaretoken', marca.csrf_token);
+            try { await fetch(urlDestino, { method: 'POST', body: formData }); } catch (error) { return; }
+        }
+        localStorage.removeItem('marcas_pendientes');
+        window.location.reload();
+    }
+
+    function pintarMarcasPendientes() { }
+
+    window.onload = function() {
+        iniciarCamara();
+        iniciarGPS();
+        pintarMarcasPendientes();
+    };
+</script>
+
+{% endblock %}

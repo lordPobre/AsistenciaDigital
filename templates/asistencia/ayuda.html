@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <div class="text-center mb-5">
+                <h1 class="fw-bold"><i class="fas fa-book-reader text-primary"></i> Centro de Ayuda</h1>
+                <p class="lead text-muted">Guía de uso para Asistencia Digital</p>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+
+                    <h3 class="text-primary mb-3"><i class="fas fa-users"></i> 1. Tipos de Usuario</h3>
+                    <p>El sistema reconoce dos perfiles principales:</p>
+                    <ul>
+                        <li><strong>Colaborador:</strong> Puede registrar asistencia y ver su propio historial.</li>
+                        <li><strong>Gerencia (RRHH/Gerente):</strong> Tiene acceso al Panel Fiscalizador y descarga de reportes.</li>
+                    </ul>
+                    <hr class="my-4">
+
+                    <h3 class="text-primary mb-3"><i class="fas fa-user-clock"></i> 2. Instrucciones para el Colaborador</h3>
+
+                    <h5 class="fw-bold mt-4">A. Marcar Entrada y Salida</h5>
+                    <p>En la pantalla principal, presione los botones grandes de la fila superior:</p>
+                    <ul>
+                        <li><span class="badge bg-primary">Registrar Entrada</span> al llegar.</li>
+                        <li><span class="badge bg-danger">Registrar Salida</span> al terminar la jornada.</li>
+                    </ul>
+                    <div class="alert alert-light border border-warning">
+                        <small>
+                            <strong>Importante:</strong> El navegador le pedirá permiso para usar su ubicación.
+                            Debe presionar <strong>"Permitir"</strong>. Si deniega el permiso, el sistema no guardará la marca por seguridad.
+                        </small>
+                    </div>
+
+                    <h5 class="fw-bold mt-4">B. Registrar Colación (Almuerzo)</h5>
+                    <p>Para sus tiempos de descanso, utilice los botones de la segunda fila:</p>
+                    <ul>
+                        <li>
+                            <span class="badge bg-warning text-dark">Inicio Colación</span>: Presione al salir a su descanso.
+                        </li>
+                        <li>
+                            <span class="badge bg-info text-white">Fin Colación</span>: Presione al regresar a trabajar.
+                        </li>
+                    </ul>
+
+                    <h5 class="fw-bold mt-4">C. Ver Historial</h5>
+                    <p>En la parte inferior de la pantalla de inicio, encontrará una tabla con sus últimas marcas registradas, donde podrá verificar la fecha, la hora exacta y la ubicación detectada.</p>
+
+                    <h3 class="text-primary mb-3"><i class="fas fa-chart-line"></i> 3. Instrucciones para Gerentes y RRHH</h3>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Solo visible si su cargo es <strong>"Gerente"</strong> o <strong>"RRHH"</strong>.
+                    </div>
+
+                    <h5 class="fw-bold">A. Panel Fiscalizador</h5>
+                    <p>En la barra superior verá un botón amarillo. Al entrar, podrá ver en tiempo real las marcas de todos los trabajadores de su empresa asignada.</p>
+
+                    <h5 class="fw-bold mt-3">B. Descargar Excel</h5>
+                    <p>Dentro del panel, use el botón verde <span class="badge bg-success"><i class="fas fa-file-excel"></i> Descargar Excel</span> para obtener un reporte compatible con nómina, filtrado automáticamente por su empresa.</p>
+
+                </div>
+                <div class="card-footer text-center text-muted py-3">
+                    ¿Dudas adicionales? Contacte al soporte de TI.
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al Inicio
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

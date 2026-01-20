@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-primary text-white p-3 rounded-top-4">
+                    <h5 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Solicitar Día</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">FECHA</label>
+                            <input type="date" name="fecha" class="form-control" required min="{% now 'Y-m-d' %}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">DURACIÓN</label>
+                            <select name="tipo_jornada" class="form-select">
+                                <option value="COMPLETO">Día Completo</option>
+                                <option value="MAÑANA">Solo Mañana</option>
+                                <option value="TARDE">Solo Tarde</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">MOTIVO (OPCIONAL)</label>
+                            <textarea name="motivo" class="form-control" rows="2" placeholder="Ej: Trámites bancarios"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">
+                            Enviar Solicitud
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 text-secondary">Mis Solicitudes</h5>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Jornada</th>
+                                    <th>Estado</th>
+                                    <th>Comentario RRHH</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dia in solicitudes %}
+                                <tr>
+                                    <td class="fw-bold">{{ dia.fecha|date:"d M, Y" }}</td>
+                                    <td>
+                                        {% if dia.tipo_jornada == 'COMPLETO' %}
+                                            <span class="badge bg-secondary">Día Completo</span>
+                                        {% else %}
+                                            <span class="badge bg-info text-dark">Media Jornada</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if dia.estado == 'PENDIENTE' %}
+                                            <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Pendiente</span>
+                                        {% elif dia.estado == 'APROBADO' %}
+                                            <span class="badge bg-success"><i class="fas fa-check me-1"></i>Aprobado</span>
+                                        {% else %}
+                                            <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Rechazado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="small text-muted">{{ dia.comentario_rrhh|default:"-" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No tienes solicitudes históricas.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

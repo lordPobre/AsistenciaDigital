@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white shadow h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><i class="fas fa-umbrella-beach"></i> Saldo Disponible</h5>
+                    <h1 class="display-1 fw-bold">{{ dias_disponibles }}</h1>
+                    <p class="lead">Días hábiles</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 mb-3">
+            <div class="card shadow h-100">
+                <div class="card-header bg-white fw-bold">📅 Solicitar Días Libres</div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label small">Desde</label>
+                                <input type="date" name="fecha_inicio" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Hasta</label>
+                                <input type="date" name="fecha_fin" class="form-control" required>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <label class="form-label small">Comentario (Opcional)</label>
+                                <textarea name="motivo" class="form-control" rows="2" placeholder="Ej: Viaje familiar al sur..."></textarea>
+                            </div>
+                            <div class="col-12 mt-3 text-end">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="mt-4">Mis Solicitudes</h5>
+    <div class="table-responsive">
+        <table class="table table-hover bg-white shadow-sm rounded">
+            <thead>
+                <tr>
+                    <th>Fecha Solicitud</th>
+                    <th>Desde - Hasta</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in solicitudes %}
+                <tr>
+                    <td>{{ v.fecha_solicitud|date:"d/m/Y" }}</td>
+                    <td>
+                        {{ v.inicio|date:"d M" }} - {{ v.fin|date:"d M Y" }}
+                    </td>
+                    <td>
+                        {% if v.estado == 'APROBADA' %}
+                            <span class="badge bg-success">Aprobada ✅</span>
+                        {% elif v.estado == 'RECHAZADA' %}
+                            <span class="badge bg-danger">Rechazada ❌</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pendiente ⏳</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="text-center text-muted">No tienes solicitudes.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

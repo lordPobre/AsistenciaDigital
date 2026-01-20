@@ -1,0 +1,58 @@
+:root {
+    /* Paleta de Colores 'Perseus Dark' */
+    --bg-body: #0f0f0f;       /* Fondo principal muy oscuro */
+    --bg-card: #1e1e1e;       /* Fondo de las tarjetas */
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --accent: #ff6b00;        /* Ese naranja moderno de tu foto */
+    --radius: 24px;           /* Bordes muy redondos */
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif; /* Fuente moderna recomendada */
+}
+
+/* 1. Sidebar Moderna */
+.sidebar-modern {
+    width: 260px;
+    height: 100vh;
+    background-color: var(--bg-body); /* Se funde con el fondo */
+    position: fixed;
+    padding: 2rem;
+    border-right: 1px solid #333;
+}
+
+/* 2. Contenedor Principal */
+.main-content {
+    margin-left: 260px; /* Deja espacio al sidebar */
+    padding: 2rem;
+}
+
+/* 3. Tarjetas Bento (Lo más importante) */
+.bento-card {
+    background-color: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    border: 1px solid #333; /* Borde sutil */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5); /* Sombra suave */
+    transition: transform 0.2s;
+}
+
+.bento-card:hover {
+    border-color: var(--accent); /* Brillo naranja al pasar mouse */
+}
+
+/* Textos y Estadísticas */
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}

@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card border-primary">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Bandeja de Entrada RRHH</h4>
+
+            <div>
+                <a href="{% url 'gestionar_ausencias' %}" class="btn btn-light btn-sm fw-bold">
+                    <i class="fas fa-calendar-alt me-1"></i> Panel Ausencias
+                </a>
+                <span class="badge bg-white text-primary ms-2">
+                    {{ solicitudes.count|add:vacaciones_pendientes.count }} Pendientes Totales
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <h5 class="text-primary mb-3"><i class="fas fa-clock me-2"></i>Corrección de Marcas</h5>
+            {% if not solicitudes %}
+                <div class="alert alert-light border text-center text-muted mb-4">
+                    <i class="fas fa-check mb-1"></i> No hay correcciones de marca pendientes.
+                </div>
+            {% else %}
+                <div class="table-responsive mb-4">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Trabajador</th>
+                                <th>Solicitud</th>
+                                <th>Detalle Propuesto</th>
+                                <th>Motivo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sol in solicitudes %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ sol.trabajador.get_full_name|default:sol.trabajador.username }}</div>
+                                    <small class="text-muted">{{ sol.created_at|date:"d/m/Y H:i" }}</small>
+                                </td>
+                                <td>
+                                    {% if sol.tipo_solicitud == 'NUEVA' %}
+                                        <span class="badge bg-info text-dark">Nueva Marca</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Rectificación</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ sol.tipo_marca_propuesta }}</strong><br>
+                                    {{ sol.fecha_hora_propuesta|date:"d/m/Y H:i" }}
+                                    {% if sol.marca_original %}
+                                        <div class="text-danger small mt-1">
+                                            Reemplaza: {{ sol.marca_original.timestamp|date:"H:i" }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted fst-italic">"{{ sol.motivo }}"</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'responder_solicitud' sol.id 'ACEPTAR' %}" class="btn btn-success btn-sm" title="Aprobar"><i class="fas fa-check"></i></a>
+                                        <a href="{% url 'responder_solicitud' sol.id 'RECHAZAR' %}" class="btn btn-danger btn-sm" title="Rechazar" onclick="return confirm('¿Rechazar esta solicitud?')"><i class="fas fa-times"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+
+            <hr>
+
+            <h5 class="text-success mb-3 mt-4"><i class="fas fa-umbrella-beach me-2"></i>Solicitudes de Vacaciones</h5>
+
+            {% if not vacaciones_pendientes %}
+                <div class="alert alert-light border text-center text-muted">
+                    <i class="fas fa-check mb-1"></i> No hay solicitudes de vacaciones pendientes.
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light border-success">
+                            <tr>
+                                <th>Trabajador</th>
+                                <th>Fechas Solicitadas</th>
+                                <th>Comentario</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vac in vacaciones_pendientes %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ vac.trabajador.get_full_name }}</div>
+                                    <small class="text-muted">Rut: {{ vac.trabajador.perfil.rut|default:"S/I" }}</small>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="text-center me-3 border rounded p-1 bg-light">
+                                            <small class="d-block text-muted">DESDE</small>
+                                            <strong>{{ vac.inicio|date:"d M" }}</strong>
+                                        </div>
+                                        <i class="fas fa-arrow-right text-muted me-3"></i>
+                                        <div class="text-center border rounded p-1 bg-light">
+                                            <small class="d-block text-muted">HASTA</small>
+                                            <strong>{{ vac.fin|date:"d M Y" }}</strong>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-muted fst-italic">
+                                    {{ vac.comentario|default:"Sin comentarios" }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark border border-warning">Pendiente ⏳</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'aprobar_vacacion' vac.id 'APROBADA' %}" class="btn btn-outline-success btn-sm" title="Aprobar Vacaciones">
+                                            <i class="fas fa-check"></i> Aprobar
+                                        </a>
+                                        <a href="{% url 'aprobar_vacacion' vac.id 'RECHAZADA' %}" class="btn btn-outline-danger btn-sm" title="Rechazar Vacaciones" onclick="return confirm('¿Rechazar vacaciones de {{ vac.trabajador }}?')">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 mt-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-secondary">
+                <i class="fas fa-briefcase me-2 text-info"></i>Días Administrativos
+            </h5>
+            {% if dias_admin_pendientes %}
+                <span class="badge bg-warning text-dark">{{ dias_admin_pendientes.count }} Pendientes</span>
+            {% endif %}
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Trabajador</th>
+                            <th>Fecha Solicitada</th>
+                            <th>Jornada</th>
+                            <th>Motivo</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sol in dias_admin_pendientes %}
+                        <tr>
+                            <td class="ps-4 fw-bold">
+                                {{ sol.trabajador.get_full_name|default:sol.trabajador.username }}
+                            </td>
+
+                            <td>{{ sol.fecha|date:"d M, Y" }}</td>
+
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    {{ sol.get_tipo_jornada_display }}
+                                </span>
+                            </td>
+
+                            <td class="text-muted small">{{ sol.motivo|truncatechars:30 }}</td>
+
+                            <td class="text-end pe-4">
+                                <a href="{% url 'gestionar_dia_administrativo' sol.id 'aprobar' %}"
+                                   class="btn btn-sm btn-success btn-icon"
+                                   title="Aprobar Solicitud">
+                                    <i class="fas fa-check"></i>
+                                </a>
+
+                                <a href="{% url 'gestionar_dia_administrativo' sol.id 'rechazar' %}"
+                                   class="btn btn-sm btn-danger btn-icon ms-2"
+                                   title="Rechazar Solicitud"
+                                   onclick="return confirm('¿Estás seguro de RECHAZAR esta solicitud?');">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted opacity-75">
+                                <i class="fas fa-check-circle me-2"></i>Todo al día. No hay solicitudes pendientes.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4 mt-4">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold text-secondary">
+                    <i class="fas fa-heartbeat me-2 text-danger"></i>Clima Laboral (7 días)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div style="height: 250px; position: relative;">
+                    <canvas id="graficoAnimo"></canvas>
+                </div>
+
+                <div class="mt-3 text-center d-flex justify-content-center gap-3">
+                    <small><i class="fas fa-circle text-success"></i> Feliz: {{ grafico_feliz }}</small>
+                    <small><i class="fas fa-circle text-warning"></i> Neutral: {{ grafico_neutral }}</small>
+                    <small><i class="fas fa-circle text-danger"></i> Molesto: {{ grafico_molesto }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('graficoAnimo').getContext('2d');
+
+        // Datos que vienen de Django (views.py)
+        const dataFeliz = {{ grafico_feliz|default:0 }};
+        const dataNeutral = {{ grafico_neutral|default:0 }};
+        const dataMolesto = {{ grafico_molesto|default:0 }};
+
+        // Configuración del Gráfico
+        new Chart(ctx, {
+            type: 'doughnut', // Tipo "Dona"
+            data: {
+                labels: ['Feliz', 'Neutral', 'Molesto/Cansado'],
+                datasets: [{
+                    data: [dataFeliz, dataNeutral, dataMolesto],
+                    backgroundColor: [
+                        '#28a745', // Verde (Feliz)
+                        '#ffc107', // Amarillo (Neutral)
+                        '#dc3545'  // Rojo (Molesto)
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false // Ocultamos leyenda por defecto para usar la nuestra personalizada abajo
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.raw || 0;
+                                return label + ': ' + value + ' trabajadores';
+                            }
+                        }
+                    }
+                },
+                cutout: '70%', // Hace la dona más fina o gruesa
+            }
+        });
+    });
+</script>
+{% endblock %}

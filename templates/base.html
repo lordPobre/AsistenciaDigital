@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistencia Digital | Perseus Control</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================================
+           1. SISTEMA DE DISEÑO (VARIABLES)
+           ========================================= */
+        :root {
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+
+            /* MODO CLARO */
+            --bg-body: #f4f6f8;
+            --bg-nav: rgba(255, 255, 255, 0.9);
+            --bg-card: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+            --accent-primary: #4f46e5;
+        }
+
+        /* MODO OSCURO (CONFIGURACIÓN) */
+        body.dark-mode {
+            --bg-body: #0f0f0f;       /* Negro Profundo */
+            --bg-nav: rgba(15, 15, 15, 0.9);
+            --bg-card: #1e1e1e;       /* Gris Tecnológico */
+            --text-main: #ffffff;     /* Texto Blanco */
+            --text-muted: #a3a3a3;    /* Gris Claro */
+            --border-color: #333333;
+            --input-bg: #2d2d2d;
+            --accent-primary: #6366f1;
+        }
+
+        /* =========================================
+           2. ESTILOS BASE
+           ========================================= */
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding-top: 100px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        a { text-decoration: none; }
+
+        /* =========================================
+           3. NAVBAR & GLASSMORPHISM
+           ========================================= */
+        .navbar-glass {
+            background-color: var(--bg-nav) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        /* =========================================
+           4. COMPONENTES (Tarjetas, Inputs)
+           ========================================= */
+        .card, .modal-content {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            color: var(--text-main); /* Asegura que el texto herede el color */
+        }
+
+        .form-control, .form-select {
+            background-color: var(--input-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+            border-radius: 12px;
+        }
+
+        /* Fix para el placeholder y textos en inputs oscuros */
+        body.dark-mode .form-control::placeholder { color: #888; }
+        body.dark-mode .form-control { color: #fff !important; }
+
+        /* =========================================
+           5. 🚨 FIX CRÍTICO DE COLORES (LA SOLUCIÓN) 🚨
+           ========================================= */
+
+        /* FORZAR TEXTOS EN MODO OSCURO */
+        body.dark-mode .text-dark,
+        body.dark-mode .text-body,
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3,
+        body.dark-mode h4, body.dark-mode h5, body.dark-mode h6 {
+            color: #ffffff !important;
+        }
+
+        body.dark-mode .text-muted {
+            color: #a3a3a3 !important;
+        }
+
+        /* FORZAR FONDOS BLANCOS A SER OSCUROS */
+        body.dark-mode .bg-white,
+        body.dark-mode .bg-light {
+            background-color: #1e1e1e !important;
+            color: #ffffff !important;
+            border-color: #333 !important;
+        }
+
+        /* FIX BOTONES CLAROS EN MODO OSCURO */
+        body.dark-mode .btn-light,
+        body.dark-mode .btn-white {
+            background-color: #2d2d2d !important;
+            color: #ffffff !important;
+            border-color: #444 !important;
+        }
+
+        /* FIX NAVBAR LINKS */
+        body.dark-mode .navbar-brand span { color: #ffffff !important; }
+        body.dark-mode .nav-link { color: #b0b0b0 !important; }
+        body.dark-mode .nav-link.active,
+        body.dark-mode .nav-link:hover { color: #ffffff !important; }
+
+        /* FIX DROPDOWNS (Menús desplegables) */
+        body.dark-mode .dropdown-menu {
+            background-color: #1e1e1e !important;
+            border-color: #333 !important;
+        }
+        body.dark-mode .dropdown-item {
+            color: #e0e0e0 !important;
+        }
+        body.dark-mode .dropdown-item:hover {
+            background-color: #333 !important;
+            color: #fff !important;
+        }
+
+        /* =========================================
+           6. TABLAS MODERNAS
+           ========================================= */
+        .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--text-main);
+            --bs-table-border-color: var(--border-color);
+        }
+
+        body.dark-mode .table thead th {
+            color: #a0a0a0;
+            border-bottom: 1px solid #333;
+        }
+
+        body.dark-mode .table td {
+            color: #ffffff;
+            border-bottom: 1px solid #333;
+        }
+
+        /* Fix para filas hover en oscuro */
+        body.dark-mode .table-hover tbody tr:hover td {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        /* =========================================
+           7. UTILIDADES VISUALES
+           ========================================= */
+        .text-primary { color: var(--accent-primary) !important; }
+
+        .footer-glass {
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-card) !important; /* Importante para que cambie */
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+
+        /* Botones con Gradiente */
+        .btn-gradient-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            color: white;
+        }
+
+        /* Scrollbar Oscuro */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <nav class="navbar navbar-expand-xl fixed-top navbar-glass">
+        <div class="container-fluid px-4 px-lg-5">
+
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+                <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded-3 shadow-sm" style="width: 40px; height: 40px;">
+                    <i class="fas fa-fingerprint fs-5"></i>
+                </div>
+                <div>
+                    <span class="d-block lh-1 text-dark">Perseus</span>
+                    <small class="d-block text-muted fw-normal" style="font-size: 0.7rem; letter-spacing: 1px;">Control</small>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0 shadow-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavegacion">
+                <div class="bg-light p-2 rounded-circle border">
+                    <span class="fas fa-bars text-dark fs-5"></span>
+                </div>
+            </button>
+
+            <div class="collapse navbar-collapse mt-3 mt-xl-0" id="menuNavegacion">
+
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+
+                    {% if user.is_authenticated %}
+
+                        {% if solicitudes %}
+                        <li class="nav-item">
+                            <button class="btn btn-warning text-dark fw-bold rounded-pill position-relative px-4" data-bs-toggle="modal" data-bs-target="#modalSolicitudes">
+                                <i class="fas fa-bell me-1"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white">
+                                    {{ solicitudes.count }}
+                                </span>
+                            </button>
+                        </li>
+                        {% endif %}
+
+                        {% with cargo_usuario=user.perfil.cargo|default:""|upper %}
+
+                            {% if user.perfil.rol == 'EMPLEADOR' %}
+                            <li class="nav-item d-flex gap-2">
+                                <a href="{% url 'panel_empresa' %}" class="btn btn-light border text-dark fw-bold rounded-pill px-3">
+                                    <i class="fas fa-chart-pie me-1 text-primary"></i> Panel Fiscalizador
+                                </a>
+                                <a href="{% url 'panel_rrhh' %}" class="btn btn-light border text-dark fw-bold rounded-pill px-3">
+                                    <i class="fas fa-users me-1 text-info"></i> RRHH
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% if user.perfil.rol == 'FISCALIZADOR' %}
+                            <li class="nav-item">
+                                <a href="{% url 'panel_fiscalizador' %}" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
+                                    <i class="fas fa-file-contract me-2"></i> Auditoría DT
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% if user.is_superuser %}
+                            <li class="nav-item">
+                                <a href="{% url 'importar_nomina' %}" class="btn btn-dark border border-secondary text-warning fw-bold rounded-pill px-3 d-flex align-items-center gap-2">
+                                    <i class="fas fa-database"></i>
+                                    <span class="small text-uppercase">Admin</span>
+                                </a>
+                            </li>
+                            {% endif %}
+
+                        {% endwith %}
+
+                        <li class="nav-item">
+                            <button id="darkModeToggle" class="btn btn-light border rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                <i class="fas fa-moon"></i>
+                            </button>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 0.9rem;">
+                                    {{ user.first_name|first }}{{ user.last_name|first }}
+                                </div>
+                                <span class="d-none d-lg-block text-dark fw-bold">{{ user.first_name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 mt-2 p-2">
+                                <li><a class="dropdown-item rounded-3 fw-bold mb-1" href="{% url 'manual_ayuda' %}"><i class="fas fa-question-circle me-2 text-muted"></i> Ayuda</a></li>
+                                <li><a class="dropdown-item rounded-3 fw-bold mb-1" href="{% url 'privacidad' %}"><i class="fas fa-shield-alt me-2 text-muted"></i> Privacidad</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item rounded-3 text-danger fw-bold">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 px-lg-5 flex-grow-1 fade-in">
+
+        {% if messages %}
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-3 shadow-sm border-0 rounded-4 d-flex align-items-center" role="alert">
+                            <div class="fs-4 me-3">
+                                {% if message.tags == 'success' %}<i class="fas fa-check-circle text-success"></i>
+                                {% elif message.tags == 'error' %}<i class="fas fa-times-circle text-danger"></i>
+                                {% else %}<i class="fas fa-info-circle text-info"></i>{% endif %}
+                            </div>
+                            <div>{{ message }}</div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer class="footer-glass">
+        <div class="container">
+            <div class="row gy-4 align-items-center">
+                <div class="col-md-4 text-center text-md-start">
+                    <h6 class="fw-bold mb-1 text-dark">Perseus Technology</h6>
+                    <small class="text-muted">Gestión de Asistencia Inteligente &copy; {% now "Y" %}</small>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#" class="text-muted hover-primary"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-muted hover-primary"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-muted hover-primary"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <span class="badge bg-light text-muted border rounded-pill px-3">
+                        <i class="fas fa-code-branch me-1"></i> v2.0.0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const toggleBtn = document.getElementById('darkModeToggle');
+        const icon = toggleBtn ? toggleBtn.querySelector('i') : null;
+        const body = document.body;
+
+        // Función para aplicar tema
+        function aplicarTema(esOscuro) {
+            if (esOscuro) {
+                body.classList.add('dark-mode');
+                if(icon) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun', 'text-warning');
+                }
+            } else {
+                body.classList.remove('dark-mode');
+                if(icon) {
+                    icon.classList.remove('fa-sun', 'text-warning');
+                    icon.classList.add('fa-moon', 'text-primary');
+                }
+            }
+        }
+
+        // Cargar preferencia al inicio
+        const preferenciaGuardada = localStorage.getItem('theme');
+        if (preferenciaGuardada === 'dark') {
+            aplicarTema(true);
+        }
+
+        // Evento Click
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                const esOscuro = body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', esOscuro ? 'dark' : 'light');
+                aplicarTema(esOscuro);
+            });
+        }
+    </script>
+</body>
+</html>

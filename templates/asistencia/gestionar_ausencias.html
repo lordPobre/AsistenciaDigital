@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📋 Gestión de Ausencias y Licencias</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <button class="btn btn-primary w-100 py-3" data-bs-toggle="modal" data-bs-target="#modalVacacion">
+                <i class="fas fa-umbrella-beach fa-lg me-2"></i> Registrar Vacaciones
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-danger w-100 py-3" data-bs-toggle="modal" data-bs-target="#modalLicencia">
+                <i class="fas fa-user-injured fa-lg me-2"></i> Registrar Licencia Médica
+            </button>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">Historial Reciente</div>
+        <div class="card-body">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-vac">Vacaciones</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-lic">Licencias</button></li>
+            </ul>
+
+            <div class="tab-content mt-3">
+                <div class="tab-pane fade show active" id="tab-vac">
+
+                    <table class="table table-hover align-middle"> <thead class="table-light">
+                            <tr>
+                                <th>Trabajador</th>
+                                <th>Desde - Hasta</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in vacaciones %}
+                            <tr>
+                                <td class="fw-bold">{{ v.trabajador.get_full_name }}</td>
+                                <td>{{ v.inicio|date:"d M" }} - {{ v.fin|date:"d M Y" }}</td>
+                                <td>
+                                    {% if v.estado == 'PENDIENTE' %}
+                                        <span class="badge bg-warning text-dark border border-warning">Pendiente ⏳</span>
+                                    {% elif v.estado == 'APROBADA' %}
+                                        <span class="badge bg-success">Aprobada ✅</span>
+                                    {% elif v.estado == 'RECHAZADA' %}
+                                        <span class="badge bg-danger">Rechazada ❌</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if v.estado == 'PENDIENTE' %}
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'aprobar_vacacion' v.id 'APROBADA' %}" class="btn btn-sm btn-outline-success" title="Aprobar Solicitud">
+                                                <i class="fas fa-check"></i> Aprobar
+                                            </a>
+                                            <a href="{% url 'aprobar_vacacion' v.id 'RECHAZADA' %}" class="btn btn-sm btn-outline-danger" title="Rechazar Solicitud">
+                                                <i class="fas fa-times"></i> Rechazar
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <small class="text-muted">Gestionada</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        No hay solicitudes de vacaciones registradas.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane fade" id="tab-lic">
+                    <table class="table table-hover">
+                        <thead><tr><th>Trabajador</th><th>Tipo</th><th>Desde</th><th>Hasta</th><th>Archivo</th></tr></thead>
+                        <tbody>
+                            {% for l in licencias %}
+                            <tr>
+                                <td>{{ l.trabajador.get_full_name }}</td>
+                                <td>{{ l.get_tipo_display }}</td>
+                                <td>{{ l.inicio|date:"d M Y" }}</td>
+                                <td>{{ l.fin|date:"d M Y" }}</td>
+                                <td>
+                                    {% if l.documento %}
+                                        <a href="{{ l.documento.url }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-download"></i></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalVacacion" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white"><h5 class="modal-title">Nueva Vacación</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    {{ form_vacacion.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="btn_vacacion" class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="modalLicencia" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white"><h5 class="modal-title">Nueva Licencia</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    {{ form_licencia.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="btn_licencia" class="btn btn-danger">Guardar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

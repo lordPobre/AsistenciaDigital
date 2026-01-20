@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-file-excel me-2"></i>Carga Masiva de Usuarios</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Sube un archivo Excel (.xlsx) para crear o actualizar usuarios masivamente.
+                        <br>
+                        <strong>Nota:</strong> Si el usuario es nuevo, su contraseña será su RUT (sin puntos).
+                    </p>
+
+                    <div class="alert alert-info border-info">
+                        <strong>Columnas Requeridas (en orden):</strong><br>
+                        <small>username, email, nombres, apellidos, rut, cargo, hora_entrada, lunes, martes, miercoles, jueves, viernes, sabado, domingo</small>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" class="mt-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="archivo" class="form-label fw-bold">Seleccionar Archivo Excel</label>
+                            <input type="file" name="archivo_excel" class="form-control" accept=".xlsx" required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-upload me-2"></i> Procesar Nómina
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

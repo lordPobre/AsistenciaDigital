@@ -4,20 +4,14 @@
 {% block content %}
 
 <style>
-    /* =========================================
-       1. FIX DE COLORES (ADAPTATIVO)
-       ========================================= */
-    /* Esta clase fuerza el color correcto según el modo (Día/Noche) */
     .text-adaptive {
         color: var(--text-main) !important;
     }
 
-    /* Subtítulos sutiles */
     .text-adaptive-muted {
         color: var(--text-muted) !important;
     }
 
-    /* Tarjetas Bento */
     .bento-card {
         background-color: var(--bg-card);
         color: var(--text-main);
@@ -33,7 +27,6 @@
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
 
-    /* Botones de Acción (Tiles) */
     .btn-action-tile {
         width: 100%; height: 100%; min-height: 120px;
         border-radius: 24px; border: none;
@@ -44,15 +37,10 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
     .btn-action-tile:hover { transform: translateY(-3px); filter: brightness(1.1); }
-
-    /* Gradientes */
     .btn-gradient-green { background: linear-gradient(135deg, #00b09b, #96c93d); }
     .btn-gradient-orange { background: linear-gradient(135deg, #f09819, #edde5d); color: #000 !important; }
     .btn-gradient-red { background: linear-gradient(135deg, #cb2d3e, #ef473a); }
     .btn-gradient-blue { background: linear-gradient(135deg, #1a2980, #26d0ce); }
-
-    /* Botón Secundario (Gris) - CORREGIDO PARA MODO CLARO */
-    /* Este botón ahora cambia de color según el tema */
     .btn-gradient-dark {
         background: var(--input-bg);
         border: 1px solid var(--border-color);
@@ -60,7 +48,6 @@
     }
     .btn-gradient-dark:hover { background: var(--border-color); }
 
-    /* Visor Cámara */
     .scanner-container {
         position: relative; border-radius: 24px; overflow: hidden;
         border: 1px solid var(--border-color); background-color: #000;
@@ -70,7 +57,6 @@
         border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #00dc82;
     }
 
-    /* Historial */
     .history-item {
         background-color: var(--input-bg);
         border: 1px solid transparent; transition: all 0.2s;
@@ -82,12 +68,10 @@
         display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
     }
 
-    /* Colores Estados */
     .bg-success-subtle { background-color: rgba(25, 135, 84, 0.15) !important; color: #198754 !important; }
     .bg-danger-subtle  { background-color: rgba(220, 53, 69, 0.15) !important; color: #dc3545 !important; }
     .bg-warning-subtle { background-color: rgba(255, 193, 7, 0.15) !important;  color: #b48900 !important; }
 
-    /* Ajustes específicos Dark Mode */
     body.dark-mode .bg-success-subtle { color: #75b798 !important; }
     body.dark-mode .bg-danger-subtle  { color: #ea868f !important; }
     body.dark-mode .bg-warning-subtle { color: #ffda6a !important; }
@@ -464,24 +448,17 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // ==========================================
-    // 1. VARIABLES GLOBALES Y CONFIGURACIÓN
-    // ==========================================
     let gpsActivo = false;
     let camaraActiva = false;
     let tipoSeleccionado = 'ENTRADA';
     const video = document.getElementById('video');
     const form = document.getElementById('form-marcar');
-    // [CORRECCIÓN]: Agregamos referencia al formulario del modal de salida
     const formSalida = document.getElementById('form-salida-real'); 
     const aviso = document.getElementById('aviso-offline');
-
-    // Sincronización de hora Servidor-Cliente
     const serverTimeInicial = {% now "U" %} * 1000;
     const clientTimeInicial = Date.now();
     const diferenciaTiempo = serverTimeInicial - clientTimeInicial;
 
-    // Función auxiliar para obtener CSRF Token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -498,7 +475,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        // Buscamos el canvas
         const canvasAnimo = document.getElementById('miGraficoAnimo');
 
         if (canvasAnimo) {
@@ -546,9 +522,6 @@
         }
     });
 
-    // ==========================================
-    // 2. LÓGICA VISUAL
-    // ==========================================
     function seleccionarAnimo(valor, elemento) {
         document.getElementById('input_animo').value = valor;
         document.querySelectorAll('.emoji-option').forEach(el => {
@@ -581,9 +554,6 @@
     setInterval(actualizarReloj, 1000);
     actualizarReloj();
 
-    // ==========================================
-    // 3. SEGURIDAD: VERIFICADOR DE HARDWARE
-    // ==========================================
     function verificarHardware() {
         const botonesEstrictos = document.querySelectorAll('.requiere-validacion');
 
@@ -606,10 +576,7 @@
             });
         }
     }
-
-    // ==========================================
-    // 4. INICIALIZACIÓN DE DISPOSITIVOS
-    // ==========================================
+    
     function iniciarCamara() {
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then(function(stream) {
@@ -646,9 +613,6 @@
         }
     }
 
-    // ==========================================
-    // 5. FUNCIONES DE CAPTURA
-    // ==========================================
     function capturarFoto() {
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
@@ -671,10 +635,7 @@
             document.getElementById('tipo_marca').value = tipoSeleccionado;
         });
     });
-
-    // ==========================================
-    // 6. CONTROL DE ENVÍO (Fetch y Offline)
-    // ==========================================
+    
     function actualizarEstadoRed() {
         if (navigator.onLine) {
             aviso.style.display = 'none';
@@ -686,15 +647,13 @@
     window.addEventListener('online', actualizarEstadoRed);
     window.addEventListener('offline', actualizarEstadoRed);
 
-    // FUNCIÓN COMÚN PARA ENVIAR DATOS
     function manejarEnvio(e, origen) {
-        e.preventDefault(); // Detenemos el envío tradicional
+        e.preventDefault(); 
         capturarFoto();
 
         if (!navigator.onLine) {
             guardarEnDispositivo();
         } else {
-            // Recolectar datos (mirando inputs de ambos lugares por si acaso)
             const formData = {
                 tipo: document.getElementById('tipo_marca').value || (origen === 'SALIDA' ? 'SALIDA' : 'ENTRADA'),
                 latitud: document.getElementById('lat').value,
@@ -712,7 +671,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'ok') {
-                    // ¡ÉXITO MODERNO!
                     Swal.fire({
                         icon: 'success',
                         title: '¡Marca Registrada!',
@@ -725,7 +683,6 @@
                         window.location.reload(); 
                     });
                 } else {
-                    // ERROR CONTROLADO
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
@@ -746,23 +703,18 @@
         }
     }
 
-    // 1. Escuchador para Formulario PRINCIPAL (Entrada/Colación)
     if (form) {
         form.addEventListener('submit', function(e) { manejarEnvio(e, 'PRINCIPAL'); });
     }
 
-    // 2. [CORRECCIÓN CRÍTICA] Escuchador para Formulario SALIDA (Modal)
-    // Esto evita la pantalla blanca al marcar salida
     if (formSalida) {
         formSalida.addEventListener('submit', function(e) {
-            // Aseguramos que la foto esté en el input del modal
             document.getElementById('foto_salida').value = document.getElementById('foto_base64').value;
             manejarEnvio(e, 'SALIDA');
         });
     }
 
     function guardarEnDispositivo() {
-        // ... (Tu lógica original offline intacta) ...
         const lat = document.getElementById('lat').value;
         const lon = document.getElementById('lon').value;
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -777,7 +729,6 @@
     }
 
     async function sincronizarPendientes() {
-        // ... (Tu lógica original sync intacta) ...
         let pendientes = JSON.parse(localStorage.getItem('marcas_pendientes') || '[]');
         if (pendientes.length === 0) return;
         const urlDestino = '/marcar/'; 
